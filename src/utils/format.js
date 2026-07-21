@@ -1,7 +1,7 @@
 export function formatarMoeda(valor) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(valor) || 0);
 }
-
+export const formatCurrency = formatarMoeda;
 export function formatarNumero(valor) {
   return new Intl.NumberFormat('pt-BR').format(Number(valor) || 0);
 }
