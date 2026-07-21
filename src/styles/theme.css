@@ -1,0 +1,120 @@
+/* ==========================================================
+   Mary Glow ERP — Tema
+   Paleta inspirada em cosmética: rosa-berinjela como cor de marca,
+   dourado champanhe como destaque pontual, base neutra clara.
+   ========================================================== */
+:root {
+  --mg-bg: #fbf8f6;
+  --mg-surface: #ffffff;
+  --mg-ink: #2a2230;
+  --mg-muted: #8b7e87;
+  --mg-border: #ece3e7;
+
+  --mg-primary: #a8456b;
+  --mg-primary-dark: #7d3350;
+  --mg-primary-soft: #f3dce4;
+
+  --mg-gold: #b8935a;
+  --mg-gold-soft: #f2e6d2;
+
+  --mg-success: #2e7d5b;
+  --mg-success-soft: #dcf0e6;
+  --mg-warning: #b8863a;
+  --mg-warning-soft: #f6ead3;
+  --mg-danger: #c4425b;
+  --mg-danger-soft: #f8dde3;
+
+  --mg-sidebar-width: 264px;
+  --mg-radius: 0.75rem;
+  --mg-shadow: 0 1px 2px rgba(42, 34, 48, 0.04), 0 4px 16px rgba(42, 34, 48, 0.06);
+
+  --bs-primary: var(--mg-primary);
+  --bs-primary-rgb: 168, 69, 107;
+  --bs-body-font-family: 'Inter', system-ui, sans-serif;
+  --bs-body-color: var(--mg-ink);
+  --bs-body-bg: var(--mg-bg);
+}
+
+body {
+  background-color: var(--mg-bg);
+  color: var(--mg-ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+h1, h2, h3, .page-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  color: var(--mg-ink);
+}
+
+.text-mono-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Botões e links na cor de marca ---------- */
+.btn-primary {
+  background-color: var(--mg-primary);
+  border-color: var(--mg-primary);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--mg-primary-dark);
+  border-color: var(--mg-primary-dark);
+}
+.btn-outline-primary {
+  color: var(--mg-primary);
+  border-color: var(--mg-primary);
+}
+.btn-outline-primary:hover {
+  background-color: var(--mg-primary);
+  border-color: var(--mg-primary);
+}
+a {
+  color: var(--mg-primary);
+}
+.link-mg {
+  color: var(--mg-primary);
+  text-decoration: none;
+}
+.link-mg:hover {
+  color: var(--mg-primary-dark);
+  text-decoration: underline;
+}
+
+/* ---------- Cartões ---------- */
+.card {
+  border: 1px solid var(--mg-border);
+  border-radius: var(--mg-radius);
+  box-shadow: var(--mg-shadow);
+}
+
+/* ---------- Badges suaves reutilizáveis ---------- */
+.badge-soft-primary { background: var(--mg-primary-soft); color: var(--mg-primary-dark); }
+.badge-soft-success { background: var(--mg-success-soft); color: var(--mg-success); }
+.badge-soft-warning { background: var(--mg-warning-soft); color: var(--mg-warning); }
+.badge-soft-danger  { background: var(--mg-danger-soft);  color: var(--mg-danger); }
+.badge-soft-gold    { background: var(--mg-gold-soft);    color: var(--mg-gold); }
+
+/* ---------- Foco visível (acessibilidade) ---------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--mg-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Scrollbar discreta ---------- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--mg-border); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
