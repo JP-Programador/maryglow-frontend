@@ -29,26 +29,81 @@ export default function Relatorios() {
   const carregarRelatorios = async () => {
     try {
       setLoading(true);
-      const params = { dataInicio, dataFim };
-      
-      const response = await api.get('/relatorios', { params });
-      const data = response.data;
-      
-      setDadosVendas(data.vendas_por_dia || []);
-      setDadosCompras(data.compras_por_dia || []);
-      setTopProdutos(data.produtos_mais_vendidos || []);
-      setProdutosSemMovimentacao(data.produtos_sem_movimentacao || []);
+      // O backend espera data_inicio/data_fim (snake_case), não dataInicio/dataFim
+      const params = { data_inicio: dataInicio, data_fim: dataFim };
+
+      const [resLucro, resMaisVendidos, resSemMovimentacao, resVendas, resCompras] = await Promise.all([
+        api.get('/relatorios/lucro', { params }),
+        api.get('/relatorios/mais-vendidos', { params }),
+        api.get('/relatorios/sem-movimentacao', { params }),
+        api.get('/relatorios/vendas', { params }),
+        api.get('/relatorios/compras', { params }),
+      ]);
+
+      // /relatorios/lucro -> { periodo, totais: {...}, por_dia: [{ dia, valor_vendido, custo, lucro }] }
+      const porDia = resLucro.data.por_dia || [];
+      setDadosVendas(porDia.map((d) => ({
+        data: formatarDataCurta(d.dia),
+        vendas: Number(d.valor_vendido),
+        lucro: Number(d.lucro),
+      })));
+
+      // /relatorios/mais-vendidos -> { periodo, produtos: [{ nome, total_vendido, ... }] }
+      const maisVendidos = resMaisVendidos.data.produtos || [];
+      setTopProdutos(maisVendidos.map((p) => ({
+        nome: p.nome,
+        qtd: Number(p.total_vendido),
+      })));
+
+      // /relatorios/sem-movimentacao -> { periodo, produtos: [{ id, nome, sku, estoque_atual, criado_em }] }
+      const semMovimentacao = resSemMovimentacao.data.produtos || [];
+      setProdutosSemMovimentacao(semMovimentacao.map((p) => ({
+        id: p.id,
+        nome: p.nome,
+        sku: p.sku,
+        estoque: p.estoque_atual,
+        // A API não devolve "dias parado"; usamos dias desde o cadastro como aproximação
+        dias_parado: diasDesde(p.criado_em),
+      })));
+
+      // /relatorios/compras -> { periodo, total_compras, valor_total, compras: [{ data_compra, valor_total, ... }] }
+      const compras = resCompras.data.compras || [];
+      const comprasPorDia = {};
+      compras.forEach((c) => {
+        const dia = String(c.data_compra).split('T')[0];
+        comprasPorDia[dia] = (comprasPorDia[dia] || 0) + Number(c.valor_total);
+      });
+      setDadosCompras(
+        Object.keys(comprasPorDia)
+          .sort()
+          .map((dia) => ({ data: formatarDataCurta(dia), valor: comprasPorDia[dia] }))
+      );
+
+      // /relatorios/vendas -> { periodo, total_vendas, valor_total, vendas: [...] }
       setResumo({
-        totalVendido: data.total_vendido || 0,
-        lucroTotal: data.lucro_total || 0,
-        qtdVendas: data.quantidade_vendas || 0
+        totalVendido: resVendas.data.valor_total || 0,
+        lucroTotal: resLucro.data.totais?.lucro || 0,
+        qtdVendas: resVendas.data.total_vendas || 0,
       });
     } catch (error) {
       console.error('Erro ao carregar relatórios:', error);
-      montarDadosMock(); 
+      montarDadosMock();
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatarDataCurta = (isoDate) => {
+    if (!isoDate) return '';
+    const [ano, mes, dia] = String(isoDate).split('T')[0].split('-');
+    return `${dia}/${mes}`;
+  };
+
+  const diasDesde = (isoDate) => {
+    if (!isoDate) return 0;
+    const inicio = new Date(isoDate);
+    const diffMs = Date.now() - inicio.getTime();
+    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
   };
 
   const montarDadosMock = () => {

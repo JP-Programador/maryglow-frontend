@@ -9,8 +9,8 @@ export default function NovaVenda() {
   const [produtos, setProdutos] = useState([]);
   
   // Estado da Venda
-  const [plataforma, setPlataforma] = useState('Loja Física');
-  const [formaPagamento, setFormaPagamento] = useState('PIX');
+  const [plataforma, setPlataforma] = useState('loja_fisica');
+  const [formaPagamento, setFormaPagamento] = useState('pix');
   const [itensVenda, setItensVenda] = useState([]);
   
   // Estado do Formulário de Inserção
@@ -19,8 +19,22 @@ export default function NovaVenda() {
   const [precoVenda, setPrecoVenda] = useState('');
   const [estoqueDisponivel, setEstoqueDisponivel] = useState(0);
 
-  const plataformas = ['Loja Física', 'Site', 'Instagram', 'WhatsApp', 'Shopee', 'Mercado Livre', 'TikTok Shop'];
-  const formasPagamento = ['PIX', 'Cartão de Crédito', 'Cartão de Débito', 'Dinheiro'];
+  // value = o que o backend espera (snake_case); label = o que aparece na tela
+  const plataformas = [
+    { value: 'loja_fisica', label: 'Loja Física' },
+    { value: 'site', label: 'Site' },
+    { value: 'instagram', label: 'Instagram' },
+    { value: 'whatsapp', label: 'WhatsApp' },
+    { value: 'shopee', label: 'Shopee' },
+    { value: 'mercado_livre', label: 'Mercado Livre' },
+    { value: 'tiktok_shop', label: 'TikTok Shop' },
+  ];
+  const formasPagamento = [
+    { value: 'pix', label: 'PIX' },
+    { value: 'cartao_credito', label: 'Cartão de Crédito' },
+    { value: 'cartao_debito', label: 'Cartão de Débito' },
+    { value: 'dinheiro', label: 'Dinheiro' },
+  ];
 
   useEffect(() => {
     carregarProdutos();
@@ -30,7 +44,7 @@ export default function NovaVenda() {
     try {
       // Trazemos os produtos para popular o select
       const response = await api.get('/produtos');
-      setProdutos(response.data);
+      setProdutos(response.data.produtos);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
       alert('Erro ao carregar lista de produtos.');
@@ -158,13 +172,13 @@ export default function NovaVenda() {
               <div className="mb-3">
                 <label className="form-label">Plataforma de Venda *</label>
                 <select className="form-select" value={plataforma} onChange={(e) => setPlataforma(e.target.value)}>
-                  {plataformas.map(p => <option key={p} value={p}>{p}</option>)}
+                  {plataformas.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
               </div>
               <div className="mb-0">
                 <label className="form-label">Forma de Pagamento *</label>
                 <select className="form-select" value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
-                  {formasPagamento.map(f => <option key={f} value={f}>{f}</option>)}
+                  {formasPagamento.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                 </select>
               </div>
             </div>

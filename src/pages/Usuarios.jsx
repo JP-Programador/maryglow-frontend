@@ -19,7 +19,7 @@ export default function Usuarios() {
     try {
       setLoading(true);
       const response = await api.get('/usuarios');
-      setUsuarios(response.data);
+      setUsuarios(response.data.usuarios);
     } catch (error) {
       console.error('Erro ao carregar usuários:', error);
       alert('Erro de permissão ou conexão ao carregar usuários.');

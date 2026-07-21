@@ -18,7 +18,7 @@ export default function Vendas() {
     try {
       setLoading(true);
       const response = await api.get('/vendas');
-      setVendas(response.data);
+      setVendas(response.data.vendas);
     } catch (error) {
       console.error('Erro ao carregar vendas:', error);
       alert('Erro ao carregar o histórico de vendas.');

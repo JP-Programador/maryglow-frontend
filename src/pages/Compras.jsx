@@ -18,7 +18,7 @@ export default function Compras() {
     try {
       setLoading(true);
       const response = await api.get('/compras');
-      setCompras(response.data);
+      setCompras(response.data.compras);
     } catch (error) {
       console.error('Erro ao carregar compras:', error);
       alert('Erro ao carregar o histórico de compras.');

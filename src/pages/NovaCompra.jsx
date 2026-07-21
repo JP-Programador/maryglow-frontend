@@ -28,8 +28,8 @@ export default function NovaCompra() {
         api.get('/fornecedores'),
         api.get('/produtos')
       ]);
-      setFornecedores(resFornecedores.data);
-      setProdutos(resProdutos.data);
+      setFornecedores(resFornecedores.data.fornecedores);
+      setProdutos(resProdutos.data.produtos);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       alert('Erro ao carregar fornecedores e produtos.');

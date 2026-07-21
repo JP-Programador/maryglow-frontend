@@ -36,11 +36,11 @@ export default function Produtos() {
         api.get('/fornecedores')
       ]);
       
-      setProdutos(resProdutos.data);
+      setProdutos(resProdutos.data.produtos);
       setListas({
-        marcas: resMarcas.data,
-        categorias: resCategorias.data,
-        fornecedores: resFornecedores.data
+        marcas: resMarcas.data.registros,
+        categorias: resCategorias.data.registros,
+        fornecedores: resFornecedores.data.fornecedores
       });
     } catch (error) {
       console.error('Erro ao carregar dados:', error);

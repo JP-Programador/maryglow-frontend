@@ -19,7 +19,7 @@ export default function CadastroSimples({ titulo, labelItem, endpoint }) {
     try {
       setLoading(true);
       const response = await api.get(endpoint);
-      setItens(response.data);
+      setItens(response.data.registros);
     } catch (error) {
       console.error(`Erro ao carregar ${titulo}:`, error);
       alert(`Erro ao carregar ${labelItem}s. Verifique sua conexão.`);

@@ -19,7 +19,7 @@ export default function Fornecedores() {
     try {
       setLoading(true);
       const response = await api.get('/fornecedores');
-      setFornecedores(response.data);
+      setFornecedores(response.data.fornecedores);
     } catch (error) {
       console.error('Erro ao carregar fornecedores:', error);
       alert('Erro ao carregar fornecedores. Verifique sua conexão.');
