@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import api from '../../services/api';
 
-export function UsuarioForm({ onSuccess, onClose }) {
+export default function UsuarioForm({ onSuccess, onClose }) {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
