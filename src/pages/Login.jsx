@@ -32,101 +32,141 @@ export default function Login() {
   }
 
   return (
-    <div className="login-wrapper min-vh-100 d-flex align-items-center justify-content-center p-3 position-relative overflow-hidden">
-      {/* Estilos CSS embutidos para animação fluida das manchas de maquiagem */}
+    <div 
+      className="min-vh-100 d-flex align-items-center justify-content-center p-3 position-relative"
+      style={{
+        backgroundColor: '#faf6f3',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Keyframes de Animação para 4 rotas de estouro */}
       <style>{`
-        .login-wrapper {
-          background-color: #fdfaf8;
+        /* Rota 1: Topo Esquerdo -> Centro Direita */
+        @keyframes encheAndaEstoura1 {
+          0% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+          15% { transform: translate(40px, -10px) scale(1); opacity: 0.85; }
+          70% { transform: translate(calc(55vw - 50px), 100px) scale(1.25); opacity: 0.9; }
+          85% { transform: translate(calc(60vw - 50px), 110px) scale(1.5); opacity: 1; }
+          88% { transform: translate(calc(60vw - 50px), 110px) scale(2.2); opacity: 0; }
+          100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
         }
 
-        /* Mancha 1: Tom Vinho/Batom Mary Glow */
-        .glow-blob-1 {
-          position: absolute;
-          top: -10%;
-          left: -10%;
-          width: 500px;
-          height: 500px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(168, 69, 107, 0.28) 0%, rgba(184, 147, 90, 0.1) 50%, transparent 70%);
-          filter: blur(80px);
-          animation: floatGlow1 14s ease-in-out infinite alternate;
-          pointer-events: none;
+        /* Rota 2: Baixo Direita -> Centro Esquerda */
+        @keyframes encheAndaEstoura2 {
+          0% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+          20% { transform: translate(-30px, 20px) scale(1.1); opacity: 0.8; }
+          75% { transform: translate(calc(-50vw + 50px), -120px) scale(1.35); opacity: 0.85; }
+          90% { transform: translate(calc(-55vw + 50px), -130px) scale(1.7); opacity: 1; }
+          93% { transform: translate(calc(-55vw + 50px), -130px) scale(2.3); opacity: 0; }
+          100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
         }
 
-        /* Mancha 2: Tom Nude Iluminador/Gloss */
-        .glow-blob-2 {
-          position: absolute;
-          bottom: -10%;
-          right: -10%;
-          width: 550px;
-          height: 550px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(184, 147, 90, 0.25) 0%, rgba(168, 69, 107, 0.12) 50%, transparent 70%);
-          filter: blur(90px);
-          animation: floatGlow2 18s ease-in-out infinite alternate;
-          pointer-events: none;
+        /* Rota 3: Topo Direita -> Baixo Esquerda */
+        @keyframes encheAndaEstoura3 {
+          0% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+          15% { transform: translate(-20px, 40px) scale(0.9); opacity: 0.85; }
+          65% { transform: translate(calc(-45vw), 250px) scale(1.2); opacity: 0.9; }
+          80% { transform: translate(calc(-50vw), 280px) scale(1.5); opacity: 1; }
+          83% { transform: translate(calc(-50vw), 280px) scale(2.1); opacity: 0; }
+          100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
         }
 
-        /* Animações de movimento suave e expansão */
-        @keyframes floatGlow1 {
-          0% {
-            transform: translate(0, 0) scale(1) rotate(0deg);
-          }
-          50% {
-            transform: translate(120px, 80px) scale(1.15) rotate(30deg);
-          }
-          100% {
-            transform: translate(-50px, 140px) scale(0.9) rotate(-15deg);
-          }
-        }
-
-        @keyframes floatGlow2 {
-          0% {
-            transform: translate(0, 0) scale(1) rotate(0deg);
-          }
-          50% {
-            transform: translate(-100px, -90px) scale(1.2) rotate(-40deg);
-          }
-          100% {
-            transform: translate(60px, -40px) scale(0.95) rotate(20deg);
-          }
-        }
-
-        /* Card de Login com efeito Vidro Fosco (Glassmorphism) */
-        .glass-card {
-          background: rgba(255, 255, 255, 0.72) !important;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.8) !important;
-          box-shadow: 0 20px 40px rgba(168, 69, 107, 0.08) !important;
-        }
-
-        .input-group-text, .form-control {
-          background-color: rgba(255, 255, 255, 0.85) !important;
+        /* Rota 4: Baixo Esquerda -> Topo Direita */
+        @keyframes encheAndaEstoura4 {
+          0% { transform: translate(0, 0) scale(0.2); opacity: 0; }
+          25% { transform: translate(30px, -30px) scale(1); opacity: 0.8; }
+          70% { transform: translate(calc(50vw), -220px) scale(1.3); opacity: 0.85; }
+          88% { transform: translate(calc(55vw), -240px) scale(1.6); opacity: 1; }
+          91% { transform: translate(calc(55vw), -240px) scale(2.2); opacity: 0; }
+          100% { transform: translate(0, 0) scale(0.2); opacity: 0; }
         }
       `}</style>
 
-      {/* Camadas orgânicas de blush/iluminador dinâmico */}
-      <div className="glow-blob-1" />
-      <div className="glow-blob-2" />
-
-      {/* Formas orgânicas adicionais para profundidade */}
+      {/* 1. Bolha Vinho Escuro (Topo Esquerdo) */}
       <div 
-        className="position-absolute" 
         style={{
-          top: '40%',
-          left: '50%',
-          width: '350px',
-          height: '350px',
-          transform: 'translate(-50%, -50%)',
+          position: 'absolute',
+          top: '10%',
+          left: '3%',
+          width: '240px',
+          height: '240px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(235, 210, 200, 0.3) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          pointerEvents: 'none'
+          background: 'radial-gradient(circle, rgba(138, 35, 75, 0.8) 0%, rgba(90, 15, 45, 0.4) 65%, transparent 100%)',
+          filter: 'blur(35px)',
+          animation: 'encheAndaEstoura1 10s cubic-bezier(0.25, 1, 0.5, 1) infinite',
+          pointerEvents: 'none',
+          zIndex: 0
         }} 
       />
 
-      <div className="card glass-card border-0 position-relative z-1" style={{ maxWidth: 380, width: '100%' }}>
+      {/* 2. Bolha Ameixa / Rosê Escuro (Baixo Direita) */}
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: '10%',
+          right: '3%',
+          width: '260px',
+          height: '260px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(158, 61, 100, 0.75) 0%, rgba(110, 30, 65, 0.35) 70%, transparent 100%)',
+          filter: 'blur(38px)',
+          animation: 'encheAndaEstoura2 12s cubic-bezier(0.25, 1, 0.5, 1) infinite',
+          animationDelay: '2.5s',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} 
+      />
+
+      {/* 3. Bolha Dourada Queimada / Glow (Topo Direito) */}
+      <div 
+        style={{
+          position: 'absolute',
+          top: '8%',
+          right: '5%',
+          width: '210px',
+          height: '210px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(184, 130, 60, 0.75) 0%, rgba(140, 85, 30, 0.35) 65%, transparent 100%)',
+          filter: 'blur(32px)',
+          animation: 'encheAndaEstoura3 11s cubic-bezier(0.25, 1, 0.5, 1) infinite',
+          animationDelay: '5s',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} 
+      />
+
+      {/* 4. Bolha Carmim / Batom Intenso (Baixo Esquerdo) */}
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: '12%',
+          left: '5%',
+          width: '230px',
+          height: '230px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(165, 42, 85, 0.8) 0%, rgba(120, 20, 55, 0.4) 65%, transparent 100%)',
+          filter: 'blur(35px)',
+          animation: 'encheAndaEstoura4 13s cubic-bezier(0.25, 1, 0.5, 1) infinite',
+          animationDelay: '7.5s',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} 
+      />
+
+      {/* Card de Login */}
+      <div 
+        className="card border-0 shadow-lg position-relative" 
+        style={{ 
+          maxWidth: 380, 
+          width: '100%',
+          zIndex: 1,
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
+          border: '1px solid rgba(255, 255, 255, 0.95)',
+          boxShadow: '0 20px 45px rgba(138, 35, 75, 0.12)'
+        }}
+      >
         <div className="card-body p-4 p-sm-5">
           <div className="text-center mb-4">
             <p className="font-display fst-italic mb-0" style={{ fontSize: '1.8rem', color: 'var(--mg-primary-dark)' }}>
@@ -145,13 +185,13 @@ export default function Login() {
                 Email
               </label>
               <div className="input-group">
-                <span className="input-group-text border-end-0 text-muted">
+                <span className="input-group-text bg-white border-end-0 text-muted">
                   <FiMail size={16} />
                 </span>
                 <input
                   id="email"
                   type="email"
-                  className="form-control border-start-0 ps-0"
+                  className="form-control border-start-0 ps-0 bg-white"
                   placeholder="seu@email.com"
                   autoComplete="username"
                   value={email}
@@ -166,13 +206,13 @@ export default function Login() {
                 Senha
               </label>
               <div className="input-group">
-                <span className="input-group-text border-end-0 text-muted">
+                <span className="input-group-text bg-white border-end-0 text-muted">
                   <FiLock size={16} />
                 </span>
                 <input
                   id="senha"
                   type="password"
-                  className="form-control border-start-0 ps-0"
+                  className="form-control border-start-0 ps-0 bg-white"
                   placeholder="••••••••"
                   autoComplete="current-password"
                   value={senha}
