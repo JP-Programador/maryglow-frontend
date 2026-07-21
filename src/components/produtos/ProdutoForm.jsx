@@ -6,7 +6,8 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
     sku: '',
     tom: '',
     cor: '',
-    estoque: 0,
+    estoque_atual: 0,
+    estoque_minimo: 0,
     preco_custo: '',
     preco_venda: '',
     marca_id: '',
@@ -20,7 +21,7 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
       setFormData(produtoEditado);
     } else {
       setFormData({
-        nome: '', sku: '', tom: '', cor: '', estoque: 0,
+        nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
         preco_custo: '', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: ''
       });
     }
@@ -76,7 +77,7 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                   <label className="form-label">Fornecedor *</label>
                   <select className="form-select" name="fornecedor_id" value={formData.fornecedor_id} onChange={handleChange} required>
                     <option value="">Selecione...</option>
-                    {listas.fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome_fantasia || f.razao_social}</option>)}
+                    {listas.fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
                   </select>
                 </div>
 
@@ -99,8 +100,12 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Estoque Atual</label>
-                  <input type="number" className="form-control" name="estoque" value={formData.estoque} onChange={handleChange} disabled={!!produtoEditado} />
+                  <input type="number" className="form-control" name="estoque_atual" value={formData.estoque_atual} onChange={handleChange} disabled={!!produtoEditado} />
                   {produtoEditado && <small className="text-muted">Ajuste via entrada/saída</small>}
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Estoque Mínimo</label>
+                  <input type="number" className="form-control" name="estoque_minimo" value={formData.estoque_minimo} onChange={handleChange} />
                 </div>
               </div>
             </div>

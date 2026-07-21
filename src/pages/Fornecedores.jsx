@@ -61,9 +61,8 @@ export default function Fornecedores() {
   };
 
   const filtrados = fornecedores.filter(f => 
-    (f.razao_social && f.razao_social.toLowerCase().includes(busca.toLowerCase())) || 
-    (f.nome_fantasia && f.nome_fantasia.toLowerCase().includes(busca.toLowerCase())) ||
-    (f.cnpj && f.cnpj.includes(busca))
+    (f.nome && f.nome.toLowerCase().includes(busca.toLowerCase())) ||
+    (f.cnpj_cpf && f.cnpj_cpf.includes(busca))
   );
 
   return (
@@ -96,7 +95,7 @@ export default function Fornecedores() {
                 <thead className="table-light">
                   <tr>
                     <th>Empresa</th>
-                    <th>CNPJ</th>
+                    <th>CNPJ/CPF</th>
                     <th>Contato</th>
                     <th className="text-end">Ações</th>
                   </tr>
@@ -106,10 +105,9 @@ export default function Fornecedores() {
                     filtrados.map(fornecedor => (
                       <tr key={fornecedor.id}>
                         <td>
-                          <div className="fw-bold">{fornecedor.nome_fantasia || fornecedor.razao_social}</div>
-                          {fornecedor.nome_fantasia && <small className="text-muted">{fornecedor.razao_social}</small>}
+                          <div className="fw-bold">{fornecedor.nome}</div>
                         </td>
-                        <td>{fornecedor.cnpj || '-'}</td>
+                        <td>{fornecedor.cnpj_cpf || '-'}</td>
                         <td>
                           <div>{fornecedor.telefone || '-'}</div>
                           <small className="text-muted">{fornecedor.email || ''}</small>

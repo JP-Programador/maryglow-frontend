@@ -114,7 +114,7 @@ export default function Usuarios() {
                         <td className="fw-bold">{usuario.nome}</td>
                         <td>{usuario.email}</td>
                         <td>
-                          {usuario.nivel === 'Admin' ? (
+                          {usuario.nivel === 'admin' ? (
                             <span className="badge bg-danger d-inline-flex align-items-center gap-1">
                               <FaUserShield /> Admin
                             </span>

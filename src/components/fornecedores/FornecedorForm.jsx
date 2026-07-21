@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 export default function FornecedorForm({ show, onClose, onSave, fornecedorEditado }) {
   const [formData, setFormData] = useState({
-    razao_social: '',
-    nome_fantasia: '',
-    cnpj: '',
+    nome: '',
+    cnpj_cpf: '',
     telefone: '',
     email: '',
     endereco: ''
@@ -15,7 +14,7 @@ export default function FornecedorForm({ show, onClose, onSave, fornecedorEditad
       setFormData(fornecedorEditado);
     } else {
       setFormData({
-        razao_social: '', nome_fantasia: '', cnpj: '', telefone: '', email: '', endereco: ''
+        nome: '', cnpj_cpf: '', telefone: '', email: '', endereco: ''
       });
     }
   }, [fornecedorEditado, show]);
@@ -44,17 +43,13 @@ export default function FornecedorForm({ show, onClose, onSave, fornecedorEditad
             <div className="modal-body">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label">Razão Social *</label>
-                  <input type="text" className="form-control" name="razao_social" value={formData.razao_social} onChange={handleChange} required />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Nome Fantasia</label>
-                  <input type="text" className="form-control" name="nome_fantasia" value={formData.nome_fantasia} onChange={handleChange} />
+                  <label className="form-label">Nome *</label>
+                  <input type="text" className="form-control" name="nome" value={formData.nome} onChange={handleChange} required />
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label">CNPJ</label>
-                  <input type="text" className="form-control" name="cnpj" value={formData.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" />
+                  <label className="form-label">CNPJ/CPF</label>
+                  <input type="text" className="form-control" name="cnpj_cpf" value={formData.cnpj_cpf} onChange={handleChange} placeholder="00.000.000/0000-00" />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Telefone</label>

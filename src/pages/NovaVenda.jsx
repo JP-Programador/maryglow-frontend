@@ -59,7 +59,7 @@ export default function NovaVenda() {
       const prod = produtos.find(p => p.id.toString() === prodId);
       if (prod) {
         setPrecoVenda(prod.preco_venda);
-        setEstoqueDisponivel(prod.estoque);
+        setEstoqueDisponivel(prod.estoque_atual);
         setQuantidade(1);
       }
     } else {
@@ -82,8 +82,8 @@ export default function NovaVenda() {
       .filter(item => item.produto_id === prod.id)
       .reduce((acc, curr) => acc + curr.quantidade, 0);
 
-    if (Number(quantidade) + qtdJaNoCarrinho > prod.estoque) {
-      alert(`Estoque insuficiente! Você só tem ${prod.estoque} unidades disponíveis (e já adicionou ${qtdJaNoCarrinho} no carrinho).`);
+    if (Number(quantidade) + qtdJaNoCarrinho > prod.estoque_atual) {
+      alert(`Estoque insuficiente! Você só tem ${prod.estoque_atual} unidades disponíveis (e já adicionou ${qtdJaNoCarrinho} no carrinho).`);
       return;
     }
 
@@ -198,8 +198,8 @@ export default function NovaVenda() {
                   >
                     <option value="">Buscar produto...</option>
                     {produtos.map(p => (
-                      <option key={p.id} value={p.id} disabled={p.estoque <= 0}>
-                        {p.sku ? `[${p.sku}] ` : ''}{p.nome} {p.estoque <= 0 ? '(Sem Estoque)' : ''}
+                      <option key={p.id} value={p.id} disabled={p.estoque_atual <= 0}>
+                        {p.sku ? `[${p.sku}] ` : ''}{p.nome} {p.estoque_atual <= 0 ? '(Sem Estoque)' : ''}
                       </option>
                     ))}
                   </select>

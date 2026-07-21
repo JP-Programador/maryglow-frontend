@@ -105,11 +105,10 @@ export default function NovaCompra() {
     try {
       const payload = {
         fornecedor_id: fornecedorId,
-        valor_total: valorTotalCompra,
         itens: itensCompra.map(item => ({
           produto_id: item.produto_id,
           quantidade: item.quantidade,
-          preco_unitario: item.preco_unitario
+          custo_unitario: item.preco_unitario
         }))
       };
 
@@ -156,7 +155,7 @@ export default function NovaCompra() {
               >
                 <option value="">Selecione...</option>
                 {fornecedores.map(f => (
-                  <option key={f.id} value={f.id}>{f.nome_fantasia || f.razao_social}</option>
+                  <option key={f.id} value={f.id}>{f.nome}</option>
                 ))}
               </select>
             </div>

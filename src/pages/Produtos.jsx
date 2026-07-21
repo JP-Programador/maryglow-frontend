@@ -90,9 +90,9 @@ export default function Produtos() {
     const matchFornecedor = filtroFornecedor ? p.fornecedor_id?.toString() === filtroFornecedor : true;
     
     let matchEstoque = true;
-    if (filtroEstoque === 'baixo') matchEstoque = p.estoque > 0 && p.estoque <= 5;
-    if (filtroEstoque === 'zerado') matchEstoque = p.estoque === 0;
-    if (filtroEstoque === 'normal') matchEstoque = p.estoque > 5;
+    if (filtroEstoque === 'baixo') matchEstoque = p.estoque_atual > 0 && p.estoque_atual <= 5;
+    if (filtroEstoque === 'zerado') matchEstoque = p.estoque_atual === 0;
+    if (filtroEstoque === 'normal') matchEstoque = p.estoque_atual > 5;
 
     return matchBusca && matchMarca && matchCategoria && matchFornecedor && matchEstoque;
   });
@@ -137,7 +137,7 @@ export default function Produtos() {
             <div className="col-md-6 col-lg-2">
               <select className="form-select" value={filtroFornecedor} onChange={(e) => setFiltroFornecedor(e.target.value)}>
                 <option value="">Todos Fornecedores</option>
-                {listas.fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome_fantasia || f.razao_social}</option>)}
+                {listas.fornecedores.map(f => <option key={f.id} value={f.id}>{f.nome}</option>)}
               </select>
             </div>
             <div className="col-md-6 col-lg-2">
@@ -174,8 +174,8 @@ export default function Produtos() {
                           <small className="text-muted">{produto.cor} {produto.tom ? `(${produto.tom})` : ''}</small>
                         </td>
                         <td>
-                          <span className={`badge ${produto.estoque === 0 ? 'bg-danger' : produto.estoque <= 5 ? 'bg-warning text-dark' : 'bg-success'}`}>
-                            {produto.estoque} un.
+                          <span className={`badge ${produto.estoque_atual === 0 ? 'bg-danger' : produto.estoque_atual <= 5 ? 'bg-warning text-dark' : 'bg-success'}`}>
+                            {produto.estoque_atual} un.
                           </span>
                         </td>
                         <td>{formatCurrency(produto.preco_venda)}</td>
