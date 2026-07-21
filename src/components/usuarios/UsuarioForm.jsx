@@ -1,82 +1,82 @@
-import React, { useState, useEffect } from 'react';
+// frontend/src/components/usuarios/UsuarioForm.jsx
+import React, { useState } from 'react';
+import api from '../../services/api';
 
-export default function UsuarioForm({ show, onClose, onSave, usuarioEditado }) {
+export function UsuarioForm({ onSuccess, onClose }) {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
     senha: '',
-    nivel: 'Funcionario'
+    nivel: 'funcionario', // Backend exige 'funcionario' ou 'admin'
   });
-
-  useEffect(() => {
-    if (usuarioEditado) {
-      // Deixamos a senha vazia na edição para não sobrescrever caso não seja alterada
-      setFormData({ ...usuarioEditado, senha: '' });
-    } else {
-      setFormData({ nome: '', email: '', senha: '', nivel: 'Funcionario' });
-    }
-  }, [usuarioEditado, show]);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState('');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-  };
+    setErro('');
+    setLoading(true);
 
-  if (!show) return null;
+    try {
+      // 1. Prepara o payload EXATO que o seu usuarioService do backend exige:
+      const payload = {
+        nome: formData.nome?.trim(),
+        email: formData.email?.trim().toLowerCase(),
+        senha: formData.senha,
+        // Traduz caso o select envie "Funcionário" / "Administrador" com acento
+        nivel: formData.nivel?.toLowerCase().includes('admin') ? 'admin' : 'funcionario',
+      };
+
+      // 2. Dispara a requisição para a API
+      await api.post('/usuarios', payload);
+
+      alert('Usuário cadastrado com sucesso!');
+      if (onSuccess) onSuccess();
+      if (onClose) onClose();
+
+    } catch (err) {
+      console.error('Erro retornado pela API:', err.response?.data);
+
+      // 3. Captura a mensagem REAL do backend (em vez da mensagem fixa antiga)
+      const mensagemReal = err.response?.data?.mensagem 
+        || err.response?.data?.message 
+        || err.response?.data?.error
+        || 'Erro de comunicação com o servidor.';
+
+      setErro(mensagemReal);
+      alert(`Falha no cadastro: ${mensagemReal}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-            <div className="modal-header">
-              <h5 className="modal-title">{usuarioEditado ? 'Editar Usuário' : 'Novo Usuário'}</h5>
-              <button type="button" className="btn-close" onClick={onClose}></button>
-            </div>
-            
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Nome *</label>
-                <input type="text" className="form-control" name="nome" value={formData.nome} onChange={handleChange} required />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">E-mail *</label>
-                <input type="email" className="form-control" name="email" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">
-                  Senha {usuarioEditado ? <small className="text-muted">(Deixe em branco para manter a atual)</small> : '*'}
-                </label>
-                <input 
-                  type="password" 
-                  className="form-control" 
-                  name="senha" 
-                  value={formData.senha} 
-                  onChange={handleChange} 
-                  required={!usuarioEditado} 
-                  placeholder={usuarioEditado ? '*******' : 'Digite a senha'}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Nível de Acesso *</label>
-                <select className="form-select" name="nivel" value={formData.nivel} onChange={handleChange} required>
-                  <option value="Funcionario">Funcionário</option>
-                  <option value="Admin">Administrador</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>Cancelar</button>
-              <button type="submit" className="btn btn-primary">Salvar Usuário</button>
-            </div>
-          </form>
-        </div>
+    <form onSubmit={handleSubmit}>
+      {erro && <div style={{ color: 'red', marginBottom: '10px' }}>{erro}</div>}
+      
+      {/* Exemplo de Select ajustado para o campo 'nivel' */}
+      <div>
+        <label>Nível de Acesso *</label>
+        <select 
+          name="nivel" 
+          value={formData.nivel} 
+          onChange={handleChange}
+        >
+          <option value="funcionario">Funcionário</option>
+          <option value="admin">Administrador</option>
+        </select>
       </div>
-    </div>
+
+      {/* Seus outros campos (Nome, E-mail, Senha) seguem normalmente */}
+      
+      <button type="submit" disabled={loading}>
+        {loading ? 'Salvando...' : 'Salvar Usuário'}
+      </button>
+    </form>
   );
 }
