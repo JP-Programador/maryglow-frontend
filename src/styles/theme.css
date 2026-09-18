@@ -92,6 +92,32 @@ a {
   box-shadow: var(--mg-shadow);
 }
 
+/* ---------- Cards de KPI (dashboard) ---------- */
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+}
+.kpi-value {
+  font-size: 1.25rem;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+@media (max-width: 575.98px) {
+  .kpi-icon {
+    width: 34px;
+    height: 34px;
+  }
+  .kpi-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+  .kpi-value {
+    font-size: 1rem;
+  }
+}
+
 /* ---------- Badges suaves reutilizáveis ---------- */
 .badge-soft-primary { background: var(--mg-primary-soft); color: var(--mg-primary-dark); }
 .badge-soft-success { background: var(--mg-success-soft); color: var(--mg-success); }

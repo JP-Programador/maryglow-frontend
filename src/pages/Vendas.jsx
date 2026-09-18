@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { formatCurrency, formatDate } from '../utils/format';
-import { FaPlus, FaSearch, FaEye, FaShoppingBag } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash } from 'react-icons/fa';
+import VendaDetalheModal from '../components/vendas/VendaDetalheModal';
 
 export default function Vendas() {
   const [vendas, setVendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
   const navigate = useNavigate();
+
+  const [showModal, setShowModal] = useState(false);
+  const [vendaDetalhe, setVendaDetalhe] = useState(null);
+  const [carregandoDetalhe, setCarregandoDetalhe] = useState(false);
 
   useEffect(() => {
     carregarVendas();
@@ -27,7 +32,33 @@ export default function Vendas() {
     }
   };
 
-  const vendasFiltradas = vendas.filter(v => 
+  const visualizarVenda = async (id) => {
+    setShowModal(true);
+    setCarregandoDetalhe(true);
+    setVendaDetalhe(null);
+    try {
+      const response = await api.get(`/vendas/${id}`);
+      setVendaDetalhe(response.data.venda);
+    } catch (error) {
+      console.error('Erro ao carregar detalhes da venda:', error);
+    } finally {
+      setCarregandoDetalhe(false);
+    }
+  };
+
+  const excluirVenda = async (venda) => {
+    if (window.confirm(`Cancelar a venda #${venda.id}? O estoque dos itens será devolvido.`)) {
+      try {
+        await api.delete(`/vendas/${venda.id}`);
+        carregarVendas();
+      } catch (error) {
+        console.error('Erro ao cancelar venda:', error);
+        alert('Não foi possível cancelar esta venda.');
+      }
+    }
+  };
+
+  const vendasFiltradas = vendas.filter(v =>
     (v.plataforma && v.plataforma.toLowerCase().includes(busca.toLowerCase())) ||
     v.id.toString().includes(busca)
   );
@@ -88,8 +119,11 @@ export default function Vendas() {
                           {venda.lucro_total ? formatCurrency(venda.lucro_total) : '-'}
                         </td>
                         <td className="text-end">
-                          <button className="btn btn-sm btn-outline-secondary" title="Ver Detalhes">
+                          <button className="btn btn-sm btn-outline-secondary me-2" title="Ver Detalhes" onClick={() => visualizarVenda(venda.id)}>
                             <FaEye />
+                          </button>
+                          <button className="btn btn-sm btn-outline-danger" title="Cancelar Venda" onClick={() => excluirVenda(venda)}>
+                            <FaTrash />
                           </button>
                         </td>
                       </tr>
@@ -108,6 +142,13 @@ export default function Vendas() {
           )}
         </div>
       </div>
+
+      <VendaDetalheModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        venda={vendaDetalhe}
+        carregando={carregandoDetalhe}
+      />
     </div>
   );
 }

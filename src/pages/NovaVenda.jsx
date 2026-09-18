@@ -11,6 +11,7 @@ export default function NovaVenda() {
   // Estado da Venda
   const [plataforma, setPlataforma] = useState('loja_fisica');
   const [formaPagamento, setFormaPagamento] = useState('pix');
+  const [observacao, setObservacao] = useState('');
   const [itensVenda, setItensVenda] = useState([]);
   
   // Estado do Formulário de Inserção
@@ -128,6 +129,7 @@ export default function NovaVenda() {
       const payload = {
         plataforma,
         forma_pagamento: formaPagamento,
+        observacao: observacao.trim() || undefined,
         valor_total: valorTotalVenda,
         itens: itensVenda.map(item => ({
           produto_id: item.produto_id,
@@ -175,11 +177,21 @@ export default function NovaVenda() {
                   {plataformas.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
               </div>
-              <div className="mb-0">
+              <div className="mb-3">
                 <label className="form-label">Forma de Pagamento *</label>
                 <select className="form-select" value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
                   {formasPagamento.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                 </select>
+              </div>
+              <div className="mb-0">
+                <label className="form-label">Observação (opcional)</label>
+                <textarea
+                  className="form-control"
+                  rows={2}
+                  placeholder="Ex: cliente pediu entrega expressa"
+                  value={observacao}
+                  onChange={(e) => setObservacao(e.target.value)}
+                />
               </div>
             </div>
           </div>
