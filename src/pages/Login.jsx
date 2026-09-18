@@ -4,6 +4,7 @@ import { FiMail, FiLock, FiArrowRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { mensagemErro } from '../services/api';
 import ErrorAlert from '../components/common/ErrorAlert';
+import logo from '../assets/logo.png';
 
 export default function Login() {
   const { entrar } = useAuth();
@@ -169,6 +170,7 @@ export default function Login() {
       >
         <div className="card-body p-4 p-sm-5">
           <div className="text-center mb-4">
+            <img src={logo} alt="Mary Glow" style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover' }} className="mb-2 shadow-sm" />
             <p className="font-display fst-italic mb-0" style={{ fontSize: '1.8rem', color: 'var(--mg-primary-dark)' }}>
               Mary Glow
             </p>

@@ -12,6 +12,7 @@ import {
   FiUsers
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
+import logo from '../../assets/logo.png';
 
 const GRUPOS = [
   {
@@ -48,9 +49,12 @@ export default function Sidebar({ aberta, onFechar }) {
     <>
       {aberta && <div className="mg-sidebar-backdrop d-lg-none" onClick={onFechar} />}
       <aside className={`mg-sidebar ${aberta ? 'mg-sidebar-open' : ''}`}>
-        <div className="mg-sidebar-brand">
-          <p className="mg-sidebar-brand-name">Mary Glow</p>
-          <span className="mg-sidebar-brand-sub">Painel de Gestão</span>
+        <div className="mg-sidebar-brand d-flex align-items-center gap-2">
+          <img src={logo} alt="Mary Glow" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
+          <div>
+            <p className="mg-sidebar-brand-name mb-0">Mary Glow</p>
+            <span className="mg-sidebar-brand-sub">Painel de Gestão</span>
+          </div>
         </div>
 
         <nav className="mg-sidebar-nav">
