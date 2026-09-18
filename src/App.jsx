@@ -13,6 +13,7 @@ import Produtos from './pages/Produtos';
 import Marcas from './pages/Marcas';
 import Categorias from './pages/Categorias';
 import Fornecedores from './pages/Fornecedores';
+import Kits from './pages/Kits';
 
 // Páginas de Movimentação
 import Compras from './pages/Compras';
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/marcas" element={<Marcas />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/fornecedores" element={<Fornecedores />} />
+            <Route path="/kits" element={<Kits />} />
             
             {/* Movimentações */}
             <Route path="/compras" element={<Compras />} />

@@ -5,6 +5,7 @@ import {
   FiTag,
   FiLayers,
   FiTruck,
+  FiGift,
   FiShoppingCart,
   FiDollarSign,
   FiBarChart2,
@@ -23,7 +24,8 @@ const GRUPOS = [
       { to: '/produtos', label: 'Produtos', icon: FiBox },
       { to: '/marcas', label: 'Marcas', icon: FiTag },
       { to: '/categorias', label: 'Categorias', icon: FiLayers },
-      { to: '/fornecedores', label: 'Fornecedores', icon: FiTruck }
+      { to: '/fornecedores', label: 'Fornecedores', icon: FiTruck },
+      { to: '/kits', label: 'Kits Promocionais', icon: FiGift }
     ]
   },
   {
