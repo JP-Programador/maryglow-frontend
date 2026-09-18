@@ -7,6 +7,8 @@ export default function KitForm({ show, onClose, onSave, produtos }) {
   const [nome, setNome] = useState('');
   const [preco, setPreco] = useState('');
   const [destaque, setDestaque] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [modoUso, setModoUso] = useState('');
   const [imagemArquivo, setImagemArquivo] = useState(null);
   const [itens, setItens] = useState([ITEM_VAZIO()]);
   const [salvando, setSalvando] = useState(false);
@@ -16,6 +18,8 @@ export default function KitForm({ show, onClose, onSave, produtos }) {
       setNome('');
       setPreco('');
       setDestaque('');
+      setDescricao('');
+      setModoUso('');
       setImagemArquivo(null);
       setItens([ITEM_VAZIO()]);
     }
@@ -56,7 +60,7 @@ export default function KitForm({ show, onClose, onSave, produtos }) {
     if (!valido || salvando) return;
     setSalvando(true);
     try {
-      await onSave({ nome, preco, destaque, itens }, imagemArquivo);
+      await onSave({ nome, preco, destaque, descricao, modo_uso: modoUso, itens }, imagemArquivo);
     } finally {
       setSalvando(false);
     }
@@ -93,6 +97,16 @@ export default function KitForm({ show, onClose, onSave, produtos }) {
                   <label className="form-label">Selo/Destaque (opcional)</label>
                   <input type="text" className="form-control" value={destaque} onChange={(e) => setDestaque(e.target.value)}
                     placeholder="Ex: Combo, Economize" />
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label">Descrição</label>
+                  <textarea className="form-control" rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)}
+                    placeholder="O que vem no kit (aparece na página de detalhes)" />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Modo de uso</label>
+                  <textarea className="form-control" rows={2} value={modoUso} onChange={(e) => setModoUso(e.target.value)} />
                 </div>
 
                 <div className="col-12"><hr /></div>

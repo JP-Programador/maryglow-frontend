@@ -3,33 +3,55 @@ import React, { useState, useEffect } from 'react';
 const CAMPOS_INICIAIS = {
   nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
   preco_custo: '', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: '',
-  destaque: '', visivel_catalogo: false
+  destaque: '', descricao: '', modo_uso: '', visivel_catalogo: false
 };
 
+const MAX_FOTOS = 10;
 const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.onrender.com/api').replace(/\/api$/, '');
 
 export default function ProdutoForm({ show, onClose, onSave, produtoEditado, listas }) {
   const [formData, setFormData] = useState(CAMPOS_INICIAIS);
-  const [imagemArquivo, setImagemArquivo] = useState(null);
+  const [novasFotos, setNovasFotos] = useState([]);
+  const [fotosRemovidas, setFotosRemovidas] = useState([]);
 
   // Preenche o formulário se for edição
   useEffect(() => {
     if (produtoEditado) {
-      setFormData({ ...CAMPOS_INICIAIS, ...produtoEditado, visivel_catalogo: !!produtoEditado.visivel_catalogo });
+      setFormData({
+        ...CAMPOS_INICIAIS,
+        ...produtoEditado,
+        descricao: produtoEditado.descricao || '',
+        modo_uso: produtoEditado.modo_uso || '',
+        destaque: produtoEditado.destaque || '',
+        visivel_catalogo: !!produtoEditado.visivel_catalogo
+      });
     } else {
       setFormData(CAMPOS_INICIAIS);
     }
-    setImagemArquivo(null);
+    setNovasFotos([]);
+    setFotosRemovidas([]);
   }, [produtoEditado, show]);
+
+  const fotosAtuais = (produtoEditado?.imagens || []).filter((f) => !fotosRemovidas.includes(f.id));
+  const vagas = MAX_FOTOS - fotosAtuais.length - novasFotos.length;
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
+  const adicionarFotos = (e) => {
+    const escolhidas = Array.from(e.target.files).slice(0, Math.max(vagas, 0));
+    if (e.target.files.length > escolhidas.length) {
+      alert(`Cada produto aceita no máximo ${MAX_FOTOS} fotos.`);
+    }
+    setNovasFotos([...novasFotos, ...escolhidas]);
+    e.target.value = '';
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData, imagemArquivo);
+    onSave(formData, novasFotos, fotosRemovidas);
   };
 
   if (!show) return null;
@@ -106,16 +128,61 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
 
                 <div className="col-12"><hr /><h6 className="text-muted">Catálogo Online</h6></div>
 
-                <div className="col-md-6">
-                  <label className="form-label">Foto do produto</label>
-                  <input type="file" accept="image/png,image/jpeg,image/webp" className="form-control" onChange={(e) => setImagemArquivo(e.target.files[0] || null)} />
-                  {produtoEditado?.imagem_url && !imagemArquivo && (
-                    <img src={`${API_ORIGIN}${produtoEditado.imagem_url}`} alt="" className="mt-2 rounded" style={{ width: 60, height: 60, objectFit: 'cover' }} />
+                <div className="col-12">
+                  <label className="form-label">Fotos do produto ({MAX_FOTOS - vagas}/{MAX_FOTOS}) — a primeira é a capa</label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/png,image/jpeg,image/webp"
+                    className="form-control"
+                    onChange={adicionarFotos}
+                    disabled={vagas <= 0}
+                  />
+                  {(fotosAtuais.length > 0 || novasFotos.length > 0) && (
+                    <div className="d-flex flex-wrap gap-2 mt-2">
+                      {fotosAtuais.map((foto) => (
+                        <div key={foto.id} className="position-relative">
+                          <img src={`${API_ORIGIN}${foto.url}`} alt="" className="rounded border" style={{ width: 72, height: 72, objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger position-absolute top-0 end-0 p-0 lh-1"
+                            style={{ width: 20, height: 20 }}
+                            title="Remover foto"
+                            onClick={() => setFotosRemovidas([...fotosRemovidas, foto.id])}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      {novasFotos.map((arquivo, idx) => (
+                        <div key={`${arquivo.name}-${idx}`} className="position-relative">
+                          <img src={URL.createObjectURL(arquivo)} alt="" className="rounded border border-success" style={{ width: 72, height: 72, objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger position-absolute top-0 end-0 p-0 lh-1"
+                            style={{ width: 20, height: 20 }}
+                            title="Remover foto"
+                            onClick={() => setNovasFotos(novasFotos.filter((_, i) => i !== idx))}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
+                  <small className="text-muted">JPG, PNG ou WEBP, até 5MB cada. Fotos novas aparecem com borda verde.</small>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Selo/Destaque (opcional)</label>
                   <input type="text" className="form-control" name="destaque" placeholder="Ex: Mais vendido, Novidade" value={formData.destaque} onChange={handleChange} />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Descrição</label>
+                  <textarea className="form-control" rows={3} name="descricao" placeholder="Fale sobre o produto (aparece na página de detalhes)" value={formData.descricao} onChange={handleChange} />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Modo de uso</label>
+                  <textarea className="form-control" rows={2} name="modo_uso" placeholder="Como aplicar/usar" value={formData.modo_uso} onChange={handleChange} />
                 </div>
                 <div className="col-12">
                   <div className="form-check">

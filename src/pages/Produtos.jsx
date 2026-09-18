@@ -50,31 +50,27 @@ export default function Produtos() {
     }
   };
 
-  const handleSalvar = async (dadosProduto, imagemArquivo) => {
+  const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = []) => {
     try {
-      let payload = dadosProduto;
-      let config = {};
-
-      if (imagemArquivo) {
-        const form = new FormData();
-        Object.entries(dadosProduto).forEach(([chave, valor]) => {
-          if (valor !== null && valor !== undefined) form.append(chave, valor);
-        });
-        form.append('imagem', imagemArquivo);
-        payload = form;
-        config = { headers: { 'Content-Type': 'multipart/form-data' } };
-      }
+      const form = new FormData();
+      Object.entries(dadosProduto).forEach(([chave, valor]) => {
+        if (chave === 'imagens' || valor === null || valor === undefined) return;
+        form.append(chave, valor);
+      });
+      novasFotos.forEach((arquivo) => form.append('imagens', arquivo));
+      form.append('remover_imagens', JSON.stringify(fotosRemovidas));
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
       if (produtoEditado) {
-        await api.put(`/produtos/${produtoEditado.id}`, payload, config);
+        await api.put(`/produtos/${produtoEditado.id}`, form, config);
       } else {
-        await api.post('/produtos', payload, config);
+        await api.post('/produtos', form, config);
       }
       setShowModal(false);
       carregarDados();
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      alert('Erro ao salvar produto. Verifique os dados e tente novamente.');
+      alert(error.response?.data?.mensagem || 'Erro ao salvar produto. Verifique os dados e tente novamente.');
     }
   };
 
