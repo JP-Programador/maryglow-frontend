@@ -50,12 +50,25 @@ export default function Produtos() {
     }
   };
 
-  const handleSalvar = async (dadosProduto) => {
+  const handleSalvar = async (dadosProduto, imagemArquivo) => {
     try {
+      let payload = dadosProduto;
+      let config = {};
+
+      if (imagemArquivo) {
+        const form = new FormData();
+        Object.entries(dadosProduto).forEach(([chave, valor]) => {
+          if (valor !== null && valor !== undefined) form.append(chave, valor);
+        });
+        form.append('imagem', imagemArquivo);
+        payload = form;
+        config = { headers: { 'Content-Type': 'multipart/form-data' } };
+      }
+
       if (produtoEditado) {
-        await api.put(`/produtos/${produtoEditado.id}`, dadosProduto);
+        await api.put(`/produtos/${produtoEditado.id}`, payload, config);
       } else {
-        await api.post('/produtos', dadosProduto);
+        await api.post('/produtos', payload, config);
       }
       setShowModal(false);
       carregarDados();

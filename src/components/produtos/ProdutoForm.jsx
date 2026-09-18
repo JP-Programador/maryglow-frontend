@@ -1,39 +1,35 @@
 import React, { useState, useEffect } from 'react';
 
+const CAMPOS_INICIAIS = {
+  nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
+  preco_custo: '', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: '',
+  destaque: '', visivel_catalogo: false
+};
+
+const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.onrender.com/api').replace(/\/api$/, '');
+
 export default function ProdutoForm({ show, onClose, onSave, produtoEditado, listas }) {
-  const [formData, setFormData] = useState({
-    nome: '',
-    sku: '',
-    tom: '',
-    cor: '',
-    estoque_atual: 0,
-    estoque_minimo: 0,
-    preco_custo: '',
-    preco_venda: '',
-    marca_id: '',
-    categoria_id: '',
-    fornecedor_id: ''
-  });
+  const [formData, setFormData] = useState(CAMPOS_INICIAIS);
+  const [imagemArquivo, setImagemArquivo] = useState(null);
 
   // Preenche o formulário se for edição
   useEffect(() => {
     if (produtoEditado) {
-      setFormData(produtoEditado);
+      setFormData({ ...CAMPOS_INICIAIS, ...produtoEditado, visivel_catalogo: !!produtoEditado.visivel_catalogo });
     } else {
-      setFormData({
-        nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
-        preco_custo: '', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: ''
-      });
+      setFormData(CAMPOS_INICIAIS);
     }
+    setImagemArquivo(null);
   }, [produtoEditado, show]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, type, value, checked } = e.target;
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    onSave(formData, imagemArquivo);
   };
 
   if (!show) return null;
@@ -106,6 +102,26 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                 <div className="col-md-4">
                   <label className="form-label">Estoque Mínimo</label>
                   <input type="number" className="form-control" name="estoque_minimo" value={formData.estoque_minimo} onChange={handleChange} />
+                </div>
+
+                <div className="col-12"><hr /><h6 className="text-muted">Catálogo Online</h6></div>
+
+                <div className="col-md-6">
+                  <label className="form-label">Foto do produto</label>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="form-control" onChange={(e) => setImagemArquivo(e.target.files[0] || null)} />
+                  {produtoEditado?.imagem_url && !imagemArquivo && (
+                    <img src={`${API_ORIGIN}${produtoEditado.imagem_url}`} alt="" className="mt-2 rounded" style={{ width: 60, height: 60, objectFit: 'cover' }} />
+                  )}
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Selo/Destaque (opcional)</label>
+                  <input type="text" className="form-control" name="destaque" placeholder="Ex: Mais vendido, Novidade" value={formData.destaque} onChange={handleChange} />
+                </div>
+                <div className="col-12">
+                  <div className="form-check">
+                    <input type="checkbox" className="form-check-input" id="visivel_catalogo" name="visivel_catalogo" checked={formData.visivel_catalogo} onChange={handleChange} />
+                    <label className="form-check-label" htmlFor="visivel_catalogo">Exibir este produto no catálogo online (Mary Glow)</label>
+                  </div>
                 </div>
               </div>
             </div>
