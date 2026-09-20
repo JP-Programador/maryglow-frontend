@@ -1,34 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { formatCurrency, formatDate } from '../utils/format';
-import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen } from 'react-icons/fa';
 import VendaDetalheModal from '../components/vendas/VendaDetalheModal';
 
 export default function Vendas() {
   const [vendas, setVendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
+  const [produtoBusca, setProdutoBusca] = useState('');
+  const requisicaoAtual = useRef(0);
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [vendaDetalhe, setVendaDetalhe] = useState(null);
   const [carregandoDetalhe, setCarregandoDetalhe] = useState(false);
 
+  // Busca por produto no servidor, com pequena espera enquanto a pessoa digita
   useEffect(() => {
-    carregarVendas();
-  }, []);
+    const timer = setTimeout(() => carregarVendas(), produtoBusca ? 350 : 0);
+    return () => clearTimeout(timer);
+  }, [produtoBusca]);
 
   const carregarVendas = async () => {
+    const numero = ++requisicaoAtual.current;
+    const produto = produtoBusca.trim();
     try {
       setLoading(true);
-      const response = await api.get('/vendas');
-      setVendas(response.data.vendas);
+      const response = await api.get('/vendas', { params: produto ? { produto } : {} });
+      if (numero === requisicaoAtual.current) setVendas(response.data.vendas);
     } catch (error) {
       console.error('Erro ao carregar vendas:', error);
       alert('Erro ao carregar o histórico de vendas.');
     } finally {
-      setLoading(false);
+      if (numero === requisicaoAtual.current) setLoading(false);
     }
   };
 
@@ -74,15 +80,34 @@ export default function Vendas() {
 
       <div className="card shadow-sm border-0 mb-4">
         <div className="card-body">
-          <div className="input-group mb-3" style={{ maxWidth: '400px' }}>
-            <span className="input-group-text bg-white"><FaSearch className="text-muted" /></span>
-            <input 
-              type="text" 
-              className="form-control border-start-0 ps-0" 
-              placeholder="Buscar por ID ou Plataforma..." 
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            <div className="input-group" style={{ maxWidth: '320px' }}>
+              <span className="input-group-text bg-white"><FaSearch className="text-muted" /></span>
+              <input
+                type="text"
+                className="form-control border-start-0 ps-0"
+                placeholder="Buscar por ID ou Plataforma..."
+                aria-label="Buscar por ID ou plataforma"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </div>
+            <div className="input-group" style={{ maxWidth: '360px' }}>
+              <span className="input-group-text bg-white"><FaBoxOpen className="text-muted" /></span>
+              <input
+                type="text"
+                className="form-control border-start-0 ps-0"
+                placeholder="Buscar por produto (nome ou SKU)..."
+                aria-label="Buscar vendas por produto"
+                value={produtoBusca}
+                onChange={(e) => setProdutoBusca(e.target.value)}
+              />
+              {produtoBusca && (
+                <button type="button" className="btn btn-outline-secondary" onClick={() => setProdutoBusca('')} aria-label="Limpar busca por produto">
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -96,6 +121,7 @@ export default function Vendas() {
                     <th>Data</th>
                     <th>Plataforma</th>
                     <th>Pagamento</th>
+                    <th>Produtos</th>
                     <th>Total Itens</th>
                     <th>Valor Total</th>
                     <th>Lucro</th>
@@ -112,6 +138,11 @@ export default function Vendas() {
                           <span className="badge bg-secondary">{venda.plataforma}</span>
                         </td>
                         <td>{venda.forma_pagamento}</td>
+                        <td>
+                          <div className="text-truncate" style={{ maxWidth: '260px' }} title={venda.produtos_nomes || ''}>
+                            {venda.produtos_nomes || '-'}
+                          </div>
+                        </td>
                         <td>{venda.total_itens || '-'}</td>
                         <td className="fw-bold">{formatCurrency(venda.valor_total)}</td>
                         <td className="text-success fw-bold">
@@ -130,9 +161,9 @@ export default function Vendas() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="text-center py-5 text-muted">
+                      <td colSpan="9" className="text-center py-5 text-muted">
                         <FaShoppingBag size={40} className="mb-3 text-light" /><br/>
-                        Nenhuma venda registrada.
+                        {produtoBusca.trim() ? 'Nenhuma venda encontrada para este produto.' : 'Nenhuma venda registrada.'}
                       </td>
                     </tr>
                   )}
