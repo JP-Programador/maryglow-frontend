@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaUserShield, FaUser } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaUserShield, FaUser, FaKey } from 'react-icons/fa';
 import UsuarioForm from '../components/usuarios/UsuarioForm';
+import ResetSenhaModal from '../components/usuarios/ResetSenhaModal';
+import { useAuth } from '../context/AuthContext';
 
 export default function Usuarios() {
+  const { usuario: logado } = useAuth();
+  const [usuarioSenha, setUsuarioSenha] = useState(null);
   const [usuarios, setUsuarios] = useState([]);
   const [busca, setBusca] = useState('');
   const [loading, setLoading] = useState(true);
@@ -37,7 +41,12 @@ export default function Usuarios() {
       }
 
       if (usuarioEditado) {
+        const novaSenha = dados.senha;
+        delete payload.senha;
         await api.put(`/usuarios/${usuarioEditado.id}`, payload);
+        if (novaSenha) {
+          await api.put(`/usuarios/${usuarioEditado.id}/senha`, { senha: novaSenha });
+        }
       } else {
         await api.post('/usuarios', payload);
       }
@@ -46,19 +55,31 @@ export default function Usuarios() {
       carregarUsuarios();
     } catch (error) {
       console.error('Erro ao salvar usuário:', error);
-      alert(error.response?.data?.message || 'Erro ao salvar. Verifique se o e-mail já está em uso.');
+      alert(error.response?.data?.mensagem || 'Erro ao salvar. Verifique se o e-mail já está em uso.');
     }
   };
 
-  const handleExcluir = async (id) => {
-    if (window.confirm('Atenção: Excluir um usuário remove imediatamente o acesso dele ao sistema. Deseja continuar?')) {
+  const handleExcluir = async (usuario) => {
+    const tipo = usuario.nivel === 'admin' ? ' (ADMINISTRADOR)' : '';
+    if (window.confirm(`Excluir o login de ${usuario.nome}${tipo}? O acesso é removido na hora e isso não pode ser desfeito.`)) {
       try {
-        await api.delete(`/usuarios/${id}`);
+        await api.delete(`/usuarios/${usuario.id}`);
         carregarUsuarios();
       } catch (error) {
         console.error('Erro ao excluir usuário:', error);
-        alert('Não foi possível excluir o usuário.');
+        alert(error.response?.data?.mensagem || 'Não foi possível excluir o usuário.');
       }
+    }
+  };
+
+  const handleRedefinirSenha = async (usuario, senha) => {
+    try {
+      await api.put(`/usuarios/${usuario.id}/senha`, { senha });
+      setUsuarioSenha(null);
+      alert(`Senha de ${usuario.nome} redefinida com sucesso.`);
+    } catch (error) {
+      console.error('Erro ao redefinir senha:', error);
+      alert(error.response?.data?.mensagem || 'Não foi possível redefinir a senha.');
     }
   };
 
@@ -111,9 +132,13 @@ export default function Usuarios() {
                   {filtrados.length > 0 ? (
                     filtrados.map(usuario => (
                       <tr key={usuario.id}>
-                        <td className="fw-bold">{usuario.nome}</td>
+                        <td className="fw-bold">
+                          {usuario.nome}
+                          {logado?.id === usuario.id && <span className="badge bg-secondary ms-2">Você</span>}
+                        </td>
                         <td>{usuario.email}</td>
                         <td>
+                          {!usuario.ativo && <span className="badge bg-dark me-1">Inativo</span>}
                           {usuario.nivel === 'admin' ? (
                             <span className="badge bg-danger d-inline-flex align-items-center gap-1">
                               <FaUserShield /> Admin
@@ -124,11 +149,20 @@ export default function Usuarios() {
                             </span>
                           )}
                         </td>
-                        <td className="text-end">
-                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => abrirModal(usuario)}>
+                        <td className="text-end text-nowrap">
+                          <button className="btn btn-sm btn-outline-secondary me-2" title="Editar" aria-label={`Editar ${usuario.nome}`} onClick={() => abrirModal(usuario)}>
                             <FaEdit />
                           </button>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleExcluir(usuario.id)}>
+                          <button className="btn btn-sm btn-outline-warning me-2" title="Redefinir senha" aria-label={`Redefinir senha de ${usuario.nome}`} onClick={() => setUsuarioSenha(usuario)}>
+                            <FaKey />
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title={logado?.id === usuario.id ? 'Você não pode excluir o próprio login' : 'Excluir login'}
+                            aria-label={`Excluir ${usuario.nome}`}
+                            disabled={logado?.id === usuario.id}
+                            onClick={() => handleExcluir(usuario)}
+                          >
                             <FaTrash />
                           </button>
                         </td>
@@ -145,6 +179,12 @@ export default function Usuarios() {
           )}
         </div>
       </div>
+
+      <ResetSenhaModal
+        usuario={usuarioSenha}
+        onClose={() => setUsuarioSenha(null)}
+        onConfirm={handleRedefinirSenha}
+      />
 
       <UsuarioForm 
         show={showModal} 

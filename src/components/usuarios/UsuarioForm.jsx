@@ -11,7 +11,7 @@ export default function UsuarioForm({ show, onClose, onSave, usuarioEditado }) {
   useEffect(() => {
     if (usuarioEditado) {
       // Deixamos a senha vazia na edição para não sobrescrever caso não seja alterada
-      setFormData({ ...usuarioEditado, senha: '' });
+      setFormData({ ...usuarioEditado, senha: '', ativo: usuarioEditado.ativo ? 1 : 0 });
     } else {
       setFormData({ nome: '', email: '', senha: '', nivel: 'funcionario' });
     }
@@ -68,6 +68,20 @@ export default function UsuarioForm({ show, onClose, onSave, usuarioEditado }) {
                   <option value="admin">Administrador</option>
                 </select>
               </div>
+              {usuarioEditado && (
+                <div className="mb-3">
+                  <label className="form-label">Situação do login</label>
+                  <select
+                    className="form-select"
+                    name="ativo"
+                    value={formData.ativo}
+                    onChange={(e) => setFormData({ ...formData, ativo: Number(e.target.value) })}
+                  >
+                    <option value={1}>Ativo</option>
+                    <option value={0}>Inativo (bloqueia o acesso, mantém o histórico)</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="modal-footer">
