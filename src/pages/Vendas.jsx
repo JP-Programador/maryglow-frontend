@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { formatCurrency, formatDate } from '../utils/format';
-import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen } from 'react-icons/fa';
+import { formatCurrency, formatDate, STATUS_PAGAMENTO_LABEL } from '../utils/format';
+import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen, FaCheck, FaClock } from 'react-icons/fa';
 import VendaDetalheModal from '../components/vendas/VendaDetalheModal';
 
 export default function Vendas() {
@@ -10,6 +10,7 @@ export default function Vendas() {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState('');
   const [produtoBusca, setProdutoBusca] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState('');
   const requisicaoAtual = useRef(0);
   const navigate = useNavigate();
 
@@ -21,14 +22,17 @@ export default function Vendas() {
   useEffect(() => {
     const timer = setTimeout(() => carregarVendas(), produtoBusca ? 350 : 0);
     return () => clearTimeout(timer);
-  }, [produtoBusca]);
+  }, [produtoBusca, filtroStatus]);
 
   const carregarVendas = async () => {
     const numero = ++requisicaoAtual.current;
     const produto = produtoBusca.trim();
     try {
       setLoading(true);
-      const response = await api.get('/vendas', { params: produto ? { produto } : {} });
+      const params = {};
+      if (produto) params.produto = produto;
+      if (filtroStatus) params.status_pagamento = filtroStatus;
+      const response = await api.get('/vendas', { params });
       if (numero === requisicaoAtual.current) setVendas(response.data.vendas);
     } catch (error) {
       console.error('Erro ao carregar vendas:', error);
@@ -49,6 +53,21 @@ export default function Vendas() {
       console.error('Erro ao carregar detalhes da venda:', error);
     } finally {
       setCarregandoDetalhe(false);
+    }
+  };
+
+  const alterarPagamento = async (venda) => {
+    const novo = venda.status_pagamento === 'pendente' ? 'pago' : 'pendente';
+    const pergunta = novo === 'pago'
+      ? `Marcar a venda #${venda.id} como PAGA?`
+      : `Voltar a venda #${venda.id} para PENDENTE?`;
+    if (!window.confirm(pergunta)) return;
+    try {
+      await api.patch(`/vendas/${venda.id}/pagamento`, { status_pagamento: novo });
+      carregarVendas();
+    } catch (error) {
+      console.error('Erro ao alterar pagamento:', error);
+      alert('Não foi possível alterar a situação do pagamento.');
     }
   };
 
@@ -92,6 +111,17 @@ export default function Vendas() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <select
+              className="form-select"
+              style={{ maxWidth: '200px' }}
+              value={filtroStatus}
+              onChange={(e) => setFiltroStatus(e.target.value)}
+              aria-label="Filtrar por situação do pagamento"
+            >
+              <option value="">Todas as situações</option>
+              <option value="pago">Pagas</option>
+              <option value="pendente">Pendentes</option>
+            </select>
             <div className="input-group" style={{ maxWidth: '360px' }}>
               <span className="input-group-text bg-white"><FaBoxOpen className="text-muted" /></span>
               <input
@@ -121,6 +151,7 @@ export default function Vendas() {
                     <th>Data</th>
                     <th>Plataforma</th>
                     <th>Pagamento</th>
+                    <th>Situação</th>
                     <th>Produtos</th>
                     <th>Total Itens</th>
                     <th>Valor Total</th>
@@ -139,6 +170,11 @@ export default function Vendas() {
                         </td>
                         <td>{venda.forma_pagamento}</td>
                         <td>
+                          <span className={`badge ${venda.status_pagamento === 'pendente' ? 'bg-warning text-dark' : 'bg-success'}`}>
+                            {STATUS_PAGAMENTO_LABEL[venda.status_pagamento] || 'Pago'}
+                          </span>
+                        </td>
+                        <td>
                           <div className="text-truncate" style={{ maxWidth: '260px' }} title={venda.produtos_nomes || ''}>
                             {venda.produtos_nomes || '-'}
                           </div>
@@ -153,6 +189,14 @@ export default function Vendas() {
                           <button className="btn btn-sm btn-outline-secondary me-2" title="Ver Detalhes" onClick={() => visualizarVenda(venda.id)}>
                             <FaEye />
                           </button>
+                          <button
+                            className={`btn btn-sm me-2 ${venda.status_pagamento === 'pendente' ? 'btn-outline-success' : 'btn-outline-warning'}`}
+                            title={venda.status_pagamento === 'pendente' ? 'Marcar como paga' : 'Voltar para pendente'}
+                            aria-label={venda.status_pagamento === 'pendente' ? `Marcar venda ${venda.id} como paga` : `Voltar venda ${venda.id} para pendente`}
+                            onClick={() => alterarPagamento(venda)}
+                          >
+                            {venda.status_pagamento === 'pendente' ? <FaCheck /> : <FaClock />}
+                          </button>
                           <button className="btn btn-sm btn-outline-danger" title="Cancelar Venda" onClick={() => excluirVenda(venda)}>
                             <FaTrash />
                           </button>
@@ -161,9 +205,9 @@ export default function Vendas() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="9" className="text-center py-5 text-muted">
+                      <td colSpan="10" className="text-center py-5 text-muted">
                         <FaShoppingBag size={40} className="mb-3 text-light" /><br/>
-                        {produtoBusca.trim() ? 'Nenhuma venda encontrada para este produto.' : 'Nenhuma venda registrada.'}
+                        {produtoBusca.trim() || filtroStatus ? 'Nenhuma venda encontrada com esses filtros.' : 'Nenhuma venda registrada.'}
                       </td>
                     </tr>
                   )}

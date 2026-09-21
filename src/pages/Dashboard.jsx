@@ -5,7 +5,8 @@ import {
   FiShoppingBag,
   FiCalendar,
   FiDollarSign,
-  FiTrendingUp
+  FiTrendingUp,
+  FiClock
 } from 'react-icons/fi';
 import * as dashboardService from '../services/dashboardService';
 import { mensagemErro } from '../services/api';
@@ -55,14 +56,23 @@ export default function Dashboard() {
       </div>
 
       <div className="row g-3 mb-4">
-        <div className="col-md-4">
+        <div className="col-6 col-md-3">
           <KpiCard icon={FiShoppingBag} label="Vendido no mês" value={`${formatarNumero(dados.quantidade_vendida_mes)} un.`} tone="primary" />
         </div>
-        <div className="col-md-4">
+        <div className="col-6 col-md-3">
           <KpiCard icon={FiDollarSign} label="Faturamento no mês" value={formatarMoeda(dados.valor_vendido_mes)} tone="gold" />
         </div>
-        <div className="col-md-4">
+        <div className="col-6 col-md-3">
           <KpiCard icon={FiTrendingUp} label="Lucro no mês" value={formatarMoeda(dados.lucro_mes)} tone="success" />
+        </div>
+        <div className="col-6 col-md-3">
+          <KpiCard
+            icon={FiClock}
+            label="A receber (pendentes)"
+            value={formatarMoeda(dados.vendas_pendentes_valor || 0)}
+            tone="warning"
+            hint={`${formatarNumero(dados.vendas_pendentes_quantidade || 0)} ${dados.vendas_pendentes_quantidade === 1 ? 'venda' : 'vendas'}`}
+          />
         </div>
       </div>
 
@@ -92,6 +102,7 @@ export default function Dashboard() {
                         <tr key={venda.id}>
                           <td>
                             <span className="badge badge-soft-primary">{PLATAFORMAS_LABEL[venda.plataforma] || venda.plataforma}</span>
+                            {venda.status_pagamento === 'pendente' && <span className="badge badge-soft-warning ms-1">Pendente</span>}
                           </td>
                           <td className="text-muted">{venda.qtd_itens}</td>
                           <td className="text-mono-num">{formatarMoeda(venda.valor_total)}</td>

@@ -52,6 +52,11 @@ export const PLATAFORMAS_LABEL = {
   tiktok_shop: 'TikTok Shop'
 };
 
+export const STATUS_PAGAMENTO_LABEL = {
+  pago: 'Pago',
+  pendente: 'Pendente'
+};
+
 export const PAGAMENTOS_LABEL = {
   dinheiro: 'Dinheiro',
   pix: 'Pix',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency, formatDateTime, PLATAFORMAS_LABEL, PAGAMENTOS_LABEL } from '../../utils/format';
+import { formatCurrency, formatDateTime, PLATAFORMAS_LABEL, PAGAMENTOS_LABEL, STATUS_PAGAMENTO_LABEL } from '../../utils/format';
 
 export default function VendaDetalheModal({ show, onClose, venda, carregando }) {
   if (!show) return null;
@@ -32,6 +32,17 @@ export default function VendaDetalheModal({ show, onClose, venda, carregando }) 
                   <div className="col-md-4">
                     <div className="text-muted small">Pagamento</div>
                     <div className="fw-semibold">{PAGAMENTOS_LABEL[venda.forma_pagamento] || venda.forma_pagamento}</div>
+                  </div>
+                  <div className="col-md-4">
+                    <div className="text-muted small">Situação do pagamento</div>
+                    <div className="fw-semibold">
+                      <span className={`badge ${venda.status_pagamento === 'pendente' ? 'bg-warning text-dark' : 'bg-success'}`}>
+                        {STATUS_PAGAMENTO_LABEL[venda.status_pagamento] || 'Pago'}
+                      </span>
+                      {venda.status_pagamento !== 'pendente' && venda.pago_em && (
+                        <small className="text-muted ms-2">em {formatDateTime(venda.pago_em)}</small>
+                      )}
+                    </div>
                   </div>
                   <div className="col-md-4">
                     <div className="text-muted small">Vendedor(a)</div>

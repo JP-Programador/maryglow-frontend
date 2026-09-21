@@ -11,6 +11,7 @@ export default function NovaVenda() {
   // Estado da Venda
   const [plataforma, setPlataforma] = useState('loja_fisica');
   const [formaPagamento, setFormaPagamento] = useState('pix');
+  const [statusPagamento, setStatusPagamento] = useState('pago');
   const [observacao, setObservacao] = useState('');
   const [itensVenda, setItensVenda] = useState([]);
   
@@ -129,6 +130,7 @@ export default function NovaVenda() {
       const payload = {
         plataforma,
         forma_pagamento: formaPagamento,
+        status_pagamento: statusPagamento,
         observacao: observacao.trim() || undefined,
         valor_total: valorTotalVenda,
         itens: itensVenda.map(item => ({
@@ -182,6 +184,30 @@ export default function NovaVenda() {
                 <select className="form-select" value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
                   {formasPagamento.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                 </select>
+              </div>
+              <div className="mb-3">
+                <label className="form-label d-block">Situação do pagamento *</label>
+                <div className="btn-group w-100" role="group" aria-label="Situação do pagamento">
+                  <button
+                    type="button"
+                    className={`btn ${statusPagamento === 'pago' ? 'btn-success' : 'btn-outline-success'}`}
+                    onClick={() => setStatusPagamento('pago')}
+                    aria-pressed={statusPagamento === 'pago'}
+                  >
+                    Pago
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${statusPagamento === 'pendente' ? 'btn-warning' : 'btn-outline-warning'}`}
+                    onClick={() => setStatusPagamento('pendente')}
+                    aria-pressed={statusPagamento === 'pendente'}
+                  >
+                    Pendente
+                  </button>
+                </div>
+                {statusPagamento === 'pendente' && (
+                  <small className="text-muted d-block mt-1">A venda fica registrada como a receber até você marcar como paga.</small>
+                )}
               </div>
               <div className="mb-0">
                 <label className="form-label">Observação (opcional)</label>
