@@ -85,6 +85,7 @@ export default function Vendas() {
 
   const vendasFiltradas = vendas.filter(v =>
     (v.plataforma && v.plataforma.toLowerCase().includes(busca.toLowerCase())) ||
+    (v.cliente_nome && v.cliente_nome.toLowerCase().includes(busca.toLowerCase())) ||
     v.id.toString().includes(busca)
   );
 
@@ -105,8 +106,8 @@ export default function Vendas() {
               <input
                 type="text"
                 className="form-control border-start-0 ps-0"
-                placeholder="Buscar por ID ou Plataforma..."
-                aria-label="Buscar por ID ou plataforma"
+                placeholder="Buscar por ID, plataforma ou cliente..."
+                aria-label="Buscar por ID, plataforma ou cliente"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
               />
@@ -149,6 +150,7 @@ export default function Vendas() {
                   <tr>
                     <th>ID</th>
                     <th>Data</th>
+                    <th>Cliente</th>
                     <th>Plataforma</th>
                     <th>Pagamento</th>
                     <th>Situação</th>
@@ -165,6 +167,7 @@ export default function Vendas() {
                       <tr key={venda.id}>
                         <td className="fw-bold">#{venda.id}</td>
                         <td>{formatDate(venda.data_venda || venda.created_at)}</td>
+                        <td>{venda.cliente_nome || <span className="text-muted">-</span>}</td>
                         <td>
                           <span className="badge bg-secondary">{venda.plataforma}</span>
                         </td>
@@ -205,7 +208,7 @@ export default function Vendas() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="10" className="text-center py-5 text-muted">
+                      <td colSpan="11" className="text-center py-5 text-muted">
                         <FaShoppingBag size={40} className="mb-3 text-light" /><br/>
                         {produtoBusca.trim() || filtroStatus ? 'Nenhuma venda encontrada com esses filtros.' : 'Nenhuma venda registrada.'}
                       </td>

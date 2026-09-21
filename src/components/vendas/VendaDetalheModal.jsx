@@ -26,6 +26,10 @@ export default function VendaDetalheModal({ show, onClose, venda, carregando }) 
                     <div className="fw-semibold">{formatDateTime(venda.data_venda)}</div>
                   </div>
                   <div className="col-md-4">
+                    <div className="text-muted small">Cliente</div>
+                    <div className="fw-semibold">{venda.cliente_nome || '-'}</div>
+                  </div>
+                  <div className="col-md-4">
                     <div className="text-muted small">Plataforma</div>
                     <div className="fw-semibold">{PLATAFORMAS_LABEL[venda.plataforma] || venda.plataforma}</div>
                   </div>

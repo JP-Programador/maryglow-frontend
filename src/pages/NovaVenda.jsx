@@ -12,6 +12,7 @@ export default function NovaVenda() {
   const [plataforma, setPlataforma] = useState('loja_fisica');
   const [formaPagamento, setFormaPagamento] = useState('pix');
   const [statusPagamento, setStatusPagamento] = useState('pago');
+  const [clienteNome, setClienteNome] = useState('');
   const [observacao, setObservacao] = useState('');
   const [itensVenda, setItensVenda] = useState([]);
   
@@ -131,6 +132,7 @@ export default function NovaVenda() {
         plataforma,
         forma_pagamento: formaPagamento,
         status_pagamento: statusPagamento,
+        cliente_nome: clienteNome.trim() || undefined,
         observacao: observacao.trim() || undefined,
         valor_total: valorTotalVenda,
         itens: itensVenda.map(item => ({
@@ -178,6 +180,19 @@ export default function NovaVenda() {
                 <select className="form-select" value={plataforma} onChange={(e) => setPlataforma(e.target.value)}>
                   {plataformas.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                 </select>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="cliente-nome" className="form-label">Nome do cliente (opcional)</label>
+                <input
+                  id="cliente-nome"
+                  type="text"
+                  className="form-control"
+                  maxLength={150}
+                  placeholder="Ex: Maria Silva"
+                  value={clienteNome}
+                  onChange={(e) => setClienteNome(e.target.value)}
+                  autoComplete="off"
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Forma de Pagamento *</label>
