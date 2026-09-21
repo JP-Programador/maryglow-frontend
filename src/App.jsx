@@ -43,6 +43,7 @@ export default function App() {
             {/* Movimentações */}
             <Route path="/compras" element={<Compras />} />
             <Route path="/compras/nova" element={<NovaCompra />} />
+            <Route path="/compras/:id/editar" element={<NovaCompra />} />
             <Route path="/vendas" element={<Vendas />} />
             <Route path="/vendas/nova" element={<NovaVenda />} />
 

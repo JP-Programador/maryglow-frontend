@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
 import { FaTrash, FaCheck, FaArrowLeft } from 'react-icons/fa';
 
 export default function NovaCompra() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const editando = Boolean(id);
+  const [carregandoCompra, setCarregandoCompra] = useState(editando);
   const [fornecedores, setFornecedores] = useState([]);
   const [produtos, setProdutos] = useState([]);
   
   // Estado da Compra
   const [fornecedorId, setFornecedorId] = useState('');
+  const [observacao, setObservacao] = useState('');
   const [itensCompra, setItensCompra] = useState([]);
   
   // Estado do Formulário de Inserção de Item
@@ -21,6 +25,33 @@ export default function NovaCompra() {
   useEffect(() => {
     carregarListas();
   }, []);
+
+  // No modo edição, preenche a tela com a compra que já foi lançada
+  useEffect(() => {
+    if (!editando) return;
+    (async () => {
+      try {
+        const { data } = await api.get(`/compras/${id}`);
+        const compra = data.compra;
+        setFornecedorId(String(compra.fornecedor_id));
+        setObservacao(compra.observacao || '');
+        setItensCompra(compra.itens.map(i => ({
+          produto_id: i.produto_id,
+          nome: i.produto_nome,
+          sku: i.produto_sku,
+          quantidade: Number(i.quantidade),
+          preco_unitario: Number(i.custo_unitario),
+          subtotal: Number(i.subtotal)
+        })));
+      } catch (error) {
+        console.error('Erro ao carregar compra:', error);
+        alert('Não foi possível carregar esta compra.');
+        navigate('/compras');
+      } finally {
+        setCarregandoCompra(false);
+      }
+    })();
+  }, [id]);
 
   const carregarListas = async () => {
     try {
@@ -105,6 +136,7 @@ export default function NovaCompra() {
     try {
       const payload = {
         fornecedor_id: fornecedorId,
+        observacao: observacao.trim() || undefined,
         itens: itensCompra.map(item => ({
           produto_id: item.produto_id,
           quantidade: item.quantidade,
@@ -112,12 +144,17 @@ export default function NovaCompra() {
         }))
       };
 
-      await api.post('/compras', payload);
-      alert('Compra registrada e estoque atualizado com sucesso!');
+      if (editando) {
+        await api.put(`/compras/${id}`, payload);
+        alert('Compra atualizada e estoque ajustado com sucesso!');
+      } else {
+        await api.post('/compras', payload);
+        alert('Compra registrada e estoque atualizado com sucesso!');
+      }
       navigate('/compras');
     } catch (error) {
       console.error('Erro ao finalizar compra:', error);
-      alert('Erro ao processar a compra. Verifique os dados.');
+      alert(error.response?.data?.mensagem || 'Erro ao processar a compra. Verifique os dados.');
     }
   };
 
@@ -128,14 +165,14 @@ export default function NovaCompra() {
           <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate('/compras')}>
             <FaArrowLeft /> Voltar
           </button>
-          <h2 className="m-0">Nova Compra (Entrada de Estoque)</h2>
+          <h2 className="m-0">{editando ? `Editar Compra #${id}` : 'Nova Compra (Entrada de Estoque)'}</h2>
         </div>
         <button 
           className="btn btn-success d-flex align-items-center gap-2 px-4" 
           onClick={handleFinalizarCompra}
-          disabled={itensCompra.length === 0 || !fornecedorId}
+          disabled={itensCompra.length === 0 || !fornecedorId || carregandoCompra}
         >
-          <FaCheck /> Finalizar Compra
+          <FaCheck /> {editando ? 'Salvar Alterações' : 'Finalizar Compra'}
         </button>
       </div>
 
@@ -158,6 +195,19 @@ export default function NovaCompra() {
                   <option key={f.id} value={f.id}>{f.nome}</option>
                 ))}
               </select>
+              <label className="form-label mt-3">Observação (opcional)</label>
+              <textarea
+                className="form-control"
+                rows={2}
+                value={observacao}
+                onChange={(e) => setObservacao(e.target.value)}
+                placeholder="Ex: nota fiscal, condição de pagamento"
+              />
+              {editando && (
+                <small className="text-muted d-block mt-2">
+                  Ao salvar, o estoque é ajustado só pela diferença. Se algum produto já foi vendido e o estoque ficaria negativo, a edição é recusada.
+                </small>
+              )}
             </div>
           </div>
 
