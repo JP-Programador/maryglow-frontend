@@ -12,7 +12,7 @@ const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.on
 export default function ProdutoForm({ show, onClose, onSave, produtoEditado, listas }) {
   const [formData, setFormData] = useState(CAMPOS_INICIAIS);
   const [novasFotos, setNovasFotos] = useState([]);
-  const [fotosRemovidas, setFotosRemovidas] = useState([]);
+  const [galeria, setGaleria] = useState([]); // fotos existentes, já na ordem atual (exclui as removidas)
 
   // Preenche o formulário se for edição
   useEffect(() => {
@@ -29,11 +29,21 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
       setFormData(CAMPOS_INICIAIS);
     }
     setNovasFotos([]);
-    setFotosRemovidas([]);
+    setGaleria(produtoEditado?.imagens || []);
   }, [produtoEditado, show]);
 
-  const fotosAtuais = (produtoEditado?.imagens || []).filter((f) => !fotosRemovidas.includes(f.id));
+  const fotosAtuais = galeria;
   const vagas = MAX_FOTOS - fotosAtuais.length - novasFotos.length;
+
+  const removerFotoExistente = (id) => setGaleria(galeria.filter((f) => f.id !== id));
+
+  const moverFotoExistente = (indice, direcao) => {
+    const alvo = indice + direcao;
+    if (alvo < 0 || alvo >= galeria.length) return;
+    const copia = [...galeria];
+    [copia[indice], copia[alvo]] = [copia[alvo], copia[indice]];
+    setGaleria(copia);
+  };
 
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
@@ -51,7 +61,10 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData, novasFotos, fotosRemovidas);
+    const fotosRemovidas = (produtoEditado?.imagens || [])
+      .filter((f) => !galeria.some((g) => g.id === f.id))
+      .map((f) => f.id);
+    onSave(formData, novasFotos, fotosRemovidas, galeria.map((f) => f.id));
   };
 
   if (!show) return null;
@@ -140,18 +153,43 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                   />
                   {(fotosAtuais.length > 0 || novasFotos.length > 0) && (
                     <div className="d-flex flex-wrap gap-2 mt-2">
-                      {fotosAtuais.map((foto) => (
+                      {fotosAtuais.map((foto, idx) => (
                         <div key={foto.id} className="position-relative">
                           <img src={`${API_ORIGIN}${foto.url}`} alt="" className="rounded border" style={{ width: 72, height: 72, objectFit: 'cover' }} />
+                          {idx === 0 && (
+                            <span className="position-absolute bottom-0 start-0 badge bg-dark bg-opacity-75" style={{ fontSize: 9 }}>capa</span>
+                          )}
                           <button
                             type="button"
                             className="btn btn-sm btn-danger position-absolute top-0 end-0 p-0 lh-1"
                             style={{ width: 20, height: 20 }}
                             title="Remover foto"
-                            onClick={() => setFotosRemovidas([...fotosRemovidas, foto.id])}
+                            onClick={() => removerFotoExistente(foto.id)}
                           >
                             ×
                           </button>
+                          <div className="position-absolute top-0 start-0 d-flex" style={{ gap: 2 }}>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-light border p-0 lh-1"
+                              style={{ width: 20, height: 20, fontSize: 12 }}
+                              title="Mover para a esquerda"
+                              disabled={idx === 0}
+                              onClick={() => moverFotoExistente(idx, -1)}
+                            >
+                              ‹
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-light border p-0 lh-1"
+                              style={{ width: 20, height: 20, fontSize: 12 }}
+                              title="Mover para a direita"
+                              disabled={idx === fotosAtuais.length - 1}
+                              onClick={() => moverFotoExistente(idx, 1)}
+                            >
+                              ›
+                            </button>
+                          </div>
                         </div>
                       ))}
                       {novasFotos.map((arquivo, idx) => (
@@ -170,7 +208,7 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                       ))}
                     </div>
                   )}
-                  <small className="text-muted">JPG, PNG ou WEBP, até 5MB cada. Fotos novas aparecem com borda verde.</small>
+                  <small className="text-muted">JPG, PNG ou WEBP, até 5MB cada. Fotos novas aparecem com borda verde. Use ‹ › para mudar a ordem — a primeira foto é a capa.</small>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Selo/Destaque (opcional)</label>

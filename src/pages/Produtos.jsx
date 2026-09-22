@@ -50,7 +50,7 @@ export default function Produtos() {
     }
   };
 
-  const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = []) => {
+  const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = [], ordemImagens = []) => {
     try {
       const form = new FormData();
       Object.entries(dadosProduto).forEach(([chave, valor]) => {
@@ -59,6 +59,7 @@ export default function Produtos() {
       });
       novasFotos.forEach((arquivo) => form.append('imagens', arquivo));
       form.append('remover_imagens', JSON.stringify(fotosRemovidas));
+      form.append('ordem_imagens', JSON.stringify(ordemImagens));
       const config = { headers: { 'Content-Type': 'multipart/form-data' } };
 
       if (produtoEditado) {
