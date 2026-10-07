@@ -130,7 +130,7 @@ export default function NovaVenda() {
 
     const novoItem = {
       produto_id: prod.id,
-      nome: prod.nome,
+      nome: prod.cor ? `${prod.nome} - ${prod.cor}` : prod.nome,
       sku: prod.sku,
       origem,
       quantidade: Number(quantidade),
@@ -297,7 +297,7 @@ export default function NovaVenda() {
                     <option value="">Buscar produto...</option>
                     {produtos.map(p => (
                       <option key={p.id} value={p.id} disabled={disponivelNaOrigem(p.id) <= 0}>
-                        {p.sku ? `[${p.sku}] ` : ''}{p.nome} {disponivelNaOrigem(p.id) <= 0 ? '(Sem Estoque)' : `(${disponivelNaOrigem(p.id)} un.)`}
+                        {p.sku ? `[${p.sku}] ` : ''}{p.nome}{p.cor ? ` - ${p.cor}` : ''} {disponivelNaOrigem(p.id) <= 0 ? '(Sem Estoque)' : `(${disponivelNaOrigem(p.id)} un.)`}
                       </option>
                     ))}
                   </select>
