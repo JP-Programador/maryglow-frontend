@@ -21,6 +21,7 @@ import NovaCompra from './pages/NovaCompra';
 import Vendas from './pages/Vendas';
 import NovaVenda from './pages/NovaVenda';
 import Relatorios from './pages/Relatorios';
+import EstoqueVendedores from './pages/EstoqueVendedores';
 export default function App() {
   return (
     <AuthProvider>
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/fornecedores" element={<Fornecedores />} />
             <Route path="/kits" element={<Kits />} />
+            <Route path="/estoque-vendedores" element={<EstoqueVendedores />} />
             
             {/* Movimentações */}
             <Route path="/compras" element={<Compras />} />

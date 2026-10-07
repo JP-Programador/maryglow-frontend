@@ -22,6 +22,11 @@ export default function NovaVenda() {
   const [precoVenda, setPrecoVenda] = useState('');
   const [estoqueDisponivel, setEstoqueDisponivel] = useState(0);
 
+  // Estoque por vendedor: 'geral' ou o id do vendedor de onde o produto sai
+  const [mapaEstoque, setMapaEstoque] = useState({});
+  const [vendedores, setVendedores] = useState([]);
+  const [origem, setOrigem] = useState('geral');
+
   // value = o que o backend espera (snake_case); label = o que aparece na tela
   const plataformas = [
     { value: 'loja_fisica', label: 'Loja Física' },
@@ -41,7 +46,37 @@ export default function NovaVenda() {
 
   useEffect(() => {
     carregarProdutos();
+    carregarEstoque();
   }, []);
+
+  const carregarEstoque = async () => {
+    try {
+      const response = await api.get('/estoque');
+      setMapaEstoque(response.data.estoque);
+      setVendedores(response.data.vendedores);
+    } catch (error) {
+      console.error('Erro ao carregar estoque por vendedor:', error);
+    }
+  };
+
+  // Quanto há do produto na origem escolhida
+  const disponivelNaOrigem = (prodId, orig = origem) => {
+    const e = mapaEstoque[prodId];
+    if (!e) return 0;
+    return orig === 'geral' ? e.geral : (e.vendedores[orig] || 0);
+  };
+
+  const nomeOrigem = (orig) =>
+    orig === 'geral' ? 'Estoque geral' : (vendedores.find((v) => String(v.id) === String(orig))?.nome || 'Vendedor');
+
+  const handleOrigemChange = (e) => {
+    // Trocar a origem zera o item em edição (o saldo é outro)
+    setOrigem(e.target.value);
+    setProdutoSelecionado('');
+    setQuantidade(1);
+    setPrecoVenda('');
+    setEstoqueDisponivel(0);
+  };
 
   const carregarProdutos = async () => {
     try {
@@ -62,7 +97,7 @@ export default function NovaVenda() {
       const prod = produtos.find(p => p.id.toString() === prodId);
       if (prod) {
         setPrecoVenda(prod.preco_venda);
-        setEstoqueDisponivel(prod.estoque_atual);
+        setEstoqueDisponivel(disponivelNaOrigem(prod.id));
         setQuantidade(1);
       }
     } else {
@@ -82,11 +117,12 @@ export default function NovaVenda() {
     
     // Verifica a quantidade total que já está no carrinho para este produto
     const qtdJaNoCarrinho = itensVenda
-      .filter(item => item.produto_id === prod.id)
+      .filter(item => item.produto_id === prod.id && item.origem === origem)
       .reduce((acc, curr) => acc + curr.quantidade, 0);
 
-    if (Number(quantidade) + qtdJaNoCarrinho > prod.estoque_atual) {
-      alert(`Estoque insuficiente! Você só tem ${prod.estoque_atual} unidades disponíveis (e já adicionou ${qtdJaNoCarrinho} no carrinho).`);
+    const saldo = disponivelNaOrigem(prod.id);
+    if (Number(quantidade) + qtdJaNoCarrinho > saldo) {
+      alert(`Estoque insuficiente em "${nomeOrigem(origem)}"! Há ${saldo} unidades disponíveis (e já adicionou ${qtdJaNoCarrinho} no carrinho).`);
       return;
     }
 
@@ -96,6 +132,7 @@ export default function NovaVenda() {
       produto_id: prod.id,
       nome: prod.nome,
       sku: prod.sku,
+      origem,
       quantidade: Number(quantidade),
       preco_unitario: Number(precoVenda),
       preco_custo: Number(prod.preco_custo), // Guardamos para cálculo visual de lucro
@@ -138,7 +175,8 @@ export default function NovaVenda() {
         itens: itensVenda.map(item => ({
           produto_id: item.produto_id,
           quantidade: item.quantidade,
-          preco_unitario: item.preco_unitario
+          preco_unitario: item.preco_unitario,
+          estoque_usuario_id: item.origem === 'geral' ? null : Number(item.origem)
         }))
       };
 
@@ -147,7 +185,7 @@ export default function NovaVenda() {
       navigate('/vendas');
     } catch (error) {
       console.error('Erro ao finalizar venda:', error);
-      alert('Erro ao processar a venda. Verifique se há estoque suficiente no backend.');
+      alert(error.response?.data?.mensagem || 'Erro ao processar a venda. Verifique se há estoque suficiente no backend.');
     }
   };
 
@@ -242,6 +280,13 @@ export default function NovaVenda() {
               <h5 className="mb-3">2. Adicionar Produto</h5>
               <form onSubmit={handleAdicionarItem}>
                 <div className="mb-3">
+                  <label className="form-label">Sai do estoque de *</label>
+                  <select className="form-select" value={origem} onChange={handleOrigemChange}>
+                    <option value="geral">Estoque geral</option>
+                    {vendedores.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+                  </select>
+                </div>
+                <div className="mb-3">
                   <label className="form-label">Produto *</label>
                   <select 
                     className="form-select form-select-lg" 
@@ -251,8 +296,8 @@ export default function NovaVenda() {
                   >
                     <option value="">Buscar produto...</option>
                     {produtos.map(p => (
-                      <option key={p.id} value={p.id} disabled={p.estoque_atual <= 0}>
-                        {p.sku ? `[${p.sku}] ` : ''}{p.nome} {p.estoque_atual <= 0 ? '(Sem Estoque)' : ''}
+                      <option key={p.id} value={p.id} disabled={disponivelNaOrigem(p.id) <= 0}>
+                        {p.sku ? `[${p.sku}] ` : ''}{p.nome} {disponivelNaOrigem(p.id) <= 0 ? '(Sem Estoque)' : `(${disponivelNaOrigem(p.id)} un.)`}
                       </option>
                     ))}
                   </select>
@@ -312,6 +357,7 @@ export default function NovaVenda() {
                   <thead className="table-light">
                     <tr>
                       <th className="ps-4">Item</th>
+                      <th>Estoque</th>
                       <th>Qtd</th>
                       <th>Unitário</th>
                       <th>Subtotal</th>
@@ -326,6 +372,7 @@ export default function NovaVenda() {
                             <div className="fw-bold fs-6">{item.nome}</div>
                             <small className="text-muted">SKU: {item.sku || '-'}</small>
                           </td>
+                          <td><small className="text-muted">{nomeOrigem(item.origem)}</small></td>
                           <td className="fs-6">{item.quantidade}x</td>
                           <td>{formatCurrency(item.preco_unitario)}</td>
                           <td className="fw-bold fs-6">{formatCurrency(item.subtotal)}</td>
@@ -342,7 +389,7 @@ export default function NovaVenda() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="5" className="text-center py-5 text-muted">
+                        <td colSpan="6" className="text-center py-5 text-muted">
                           Nenhum produto adicionado à venda.
                         </td>
                       </tr>

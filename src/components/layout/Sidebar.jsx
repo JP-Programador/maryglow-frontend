@@ -9,7 +9,8 @@ import {
   FiShoppingCart,
   FiDollarSign,
   FiBarChart2,
-  FiUsers
+  FiUsers,
+  FiRepeat
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
@@ -23,6 +24,7 @@ const GRUPOS = [
     label: 'Estoque',
     itens: [
       { to: '/produtos', label: 'Produtos', icon: FiBox },
+      { to: '/estoque-vendedores', label: 'Estoque por vendedor', icon: FiRepeat },
       { to: '/marcas', label: 'Marcas', icon: FiTag },
       { to: '/categorias', label: 'Categorias', icon: FiLayers },
       { to: '/fornecedores', label: 'Fornecedores', icon: FiTruck },

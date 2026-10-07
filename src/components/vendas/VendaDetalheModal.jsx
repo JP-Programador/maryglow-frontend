@@ -74,6 +74,7 @@ export default function VendaDetalheModal({ show, onClose, venda, carregando }) 
                       <tr>
                         <th>Produto</th>
                         <th>SKU</th>
+                        <th>Estoque</th>
                         <th>Qtd</th>
                         <th>Unitário</th>
                         <th>Subtotal</th>
@@ -85,6 +86,7 @@ export default function VendaDetalheModal({ show, onClose, venda, carregando }) 
                         <tr key={item.id}>
                           <td>{item.produto_nome}</td>
                           <td className="text-muted">{item.produto_sku}</td>
+                          <td className="text-muted">{item.estoque_nome || 'Geral'}</td>
                           <td>{item.quantidade}</td>
                           <td>{formatCurrency(item.preco_unitario)}</td>
                           <td className="fw-semibold">{formatCurrency(item.subtotal)}</td>
