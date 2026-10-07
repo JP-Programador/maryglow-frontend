@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
@@ -15,6 +15,10 @@ export default function NovaVenda() {
   const [clienteNome, setClienteNome] = useState('');
   const [observacao, setObservacao] = useState('');
   const [itensVenda, setItensVenda] = useState([]);
+  const [finalizando, setFinalizando] = useState(false);
+  // Mesma chave em todas as tentativas desta venda: o backend ignora repetição (clique duplo)
+  const chaveRequisicao = useRef(globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`);
+  const travaEnvio = useRef(false);
   
   // Estado do Formulário de Inserção
   const [produtoSelecionado, setProdutoSelecionado] = useState('');
@@ -163,9 +167,13 @@ export default function NovaVenda() {
       alert('Adicione pelo menos um produto ao carrinho.');
       return;
     }
+    if (travaEnvio.current) return; // já está enviando
+    travaEnvio.current = true;
+    setFinalizando(true);
 
     try {
       const payload = {
+        chave_requisicao: chaveRequisicao.current,
         plataforma,
         forma_pagamento: formaPagamento,
         status_pagamento: statusPagamento,
@@ -186,6 +194,8 @@ export default function NovaVenda() {
     } catch (error) {
       console.error('Erro ao finalizar venda:', error);
       alert(error.response?.data?.mensagem || 'Erro ao processar a venda. Verifique se há estoque suficiente no backend.');
+      travaEnvio.current = false;
+      setFinalizando(false);
     }
   };
 
@@ -201,9 +211,9 @@ export default function NovaVenda() {
         <button 
           className="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fs-5" 
           onClick={handleFinalizarVenda}
-          disabled={itensVenda.length === 0}
+          disabled={itensVenda.length === 0 || finalizando}
         >
-          <FaCheck /> Fechar Venda
+          <FaCheck /> {finalizando ? 'Salvando...' : 'Fechar Venda'}
         </button>
       </div>
 
