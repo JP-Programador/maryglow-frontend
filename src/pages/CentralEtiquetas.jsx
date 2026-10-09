@@ -145,7 +145,7 @@ export default function CentralEtiquetas() {
         )}
       </div>
       <p className="text-muted mb-4">
-        Junta a etiqueta de envio e a nota fiscal (Shopee, TikTok Shop) em uma folha A4 horizontal.
+        Junta a etiqueta de envio e a nota fiscal (Shopee, TikTok Shop) em uma folha A4 horizontal, cada um ampliado para ocupar uma metade da folha.
         Os arquivos ficam só no seu navegador: nada é enviado ou salvo no sistema, e as páginas originais não são alteradas.
       </p>
 

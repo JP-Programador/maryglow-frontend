@@ -9,8 +9,11 @@ const MM = 72 / 25.4; // pontos por milímetro
 export const A4_PAISAGEM = { largura: 297 * MM, altura: 210 * MM };
 export const A4_RETRATO = { largura: 210 * MM, altura: 297 * MM };
 
-const MARGEM = 10 * MM;       // margem de impressão em todos os lados
-const ESPACO_CENTRAL = 5 * MM; // espaço entre os dois documentos
+// Modelo de referência: cada documento A6 é ampliado (~1,41x) para preencher uma metade do A4 horizontal.
+// A margem é mínima (o próprio PDF já tem respiro interno) e as metades se encostam no meio.
+const MARGEM = 2 * MM;        // margem de impressão em todos os lados
+const ESPACO_CENTRAL = 0;     // espaço entre os dois documentos
+const ESCALA_MAXIMA = 2;      // limite de ampliação (evita ampliar demais documentos pequenos)
 const ESCALA_MINIMA_LEGIVEL = 0.55; // abaixo disso o texto miúdo da DANFE deixa de ser confiável
 const TAMANHO_MAXIMO = 20 * 1024 * 1024; // 20 MB por arquivo
 
@@ -69,8 +72,8 @@ export function planejarLadoALado(paginaA, paginaB) {
   };
   const escalaDe = (p) => {
     const d = dimensoes(p);
-    // Nunca amplia além do tamanho original; só reduz o necessário para caber inteiro
-    return Math.min(1, area.largura / d.largura, area.altura / d.altura);
+    // Escala proporcional (a mesma nos dois eixos) para o documento inteiro caber na metade
+    return Math.min(ESCALA_MAXIMA, area.largura / d.largura, area.altura / d.altura);
   };
   const escalaA = escalaDe(paginaA);
   const escalaB = escalaDe(paginaB);
