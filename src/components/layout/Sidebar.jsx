@@ -10,7 +10,8 @@ import {
   FiDollarSign,
   FiBarChart2,
   FiUsers,
-  FiRepeat
+  FiRepeat,
+  FiPrinter
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
@@ -37,6 +38,10 @@ const GRUPOS = [
       { to: '/compras', label: 'Compras', icon: FiShoppingCart },
       { to: '/vendas', label: 'Vendas', icon: FiDollarSign }
     ]
+  },
+  {
+    label: 'Ferramentas',
+    itens: [{ to: '/etiquetas', label: 'Central de Etiquetas', icon: FiPrinter }]
   },
   {
     label: 'Análises',

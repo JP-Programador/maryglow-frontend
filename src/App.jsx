@@ -22,6 +22,7 @@ import Vendas from './pages/Vendas';
 import NovaVenda from './pages/NovaVenda';
 import Relatorios from './pages/Relatorios';
 import EstoqueVendedores from './pages/EstoqueVendedores';
+import CentralEtiquetas from './pages/CentralEtiquetas';
 export default function App() {
   return (
     <AuthProvider>
@@ -48,6 +49,9 @@ export default function App() {
             <Route path="/compras/:id/editar" element={<NovaCompra />} />
             <Route path="/vendas" element={<Vendas />} />
             <Route path="/vendas/nova" element={<NovaVenda />} />
+
+            {/* Ferramentas */}
+            <Route path="/etiquetas" element={<CentralEtiquetas />} />
 
             {/* Relatórios */}
             <Route path="/relatorios" element={<Relatorios />} />
