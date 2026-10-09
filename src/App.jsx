@@ -24,6 +24,7 @@ import Relatorios from './pages/Relatorios';
 import EstoqueVendedores from './pages/EstoqueVendedores';
 import CentralEtiquetas from './pages/CentralEtiquetas';
 import ConfigPrecificacao from './pages/ConfigPrecificacao';
+import FichaPrecificacao from './pages/FichaPrecificacao';
 export default function App() {
   return (
     <AuthProvider>
@@ -54,6 +55,8 @@ export default function App() {
             {/* Ferramentas */}
             <Route path="/etiquetas" element={<CentralEtiquetas />} />
             <Route path="/precificacao/configuracao" element={<ConfigPrecificacao />} />
+            <Route path="/precificacao/produto/:id" element={<FichaPrecificacao />} />
+            <Route path="/precificacao/kit/:id" element={<FichaPrecificacao />} />
 
             {/* Relatórios */}
             <Route path="/relatorios" element={<Relatorios />} />

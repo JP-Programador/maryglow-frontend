@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
-import { FaPlus, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaPlus, FaTrash, FaEye, FaEyeSlash, FaCalculator } from 'react-icons/fa';
 import KitForm from '../components/kits/KitForm';
 
 const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.onrender.com/api').replace(/\/api$/, '');
 
 export default function Kits() {
+  const navigate = useNavigate();
   const [kits, setKits] = useState([]);
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,9 +126,14 @@ export default function Kits() {
                           {kit.visivel_catalogo ? <FaEye /> : <FaEyeSlash />}
                           {kit.visivel_catalogo ? 'Visível no catálogo' : 'Oculto no catálogo'}
                         </button>
-                        <button className="btn btn-sm btn-outline-danger" onClick={() => handleExcluir(kit.id)}>
-                          <FaTrash />
-                        </button>
+                        <div className="d-flex gap-2">
+                          <button className="btn btn-sm btn-outline-primary" title="Precificação (TikTok e Shopee)" onClick={() => navigate(`/precificacao/kit/${kit.id}`)}>
+                            <FaCalculator />
+                          </button>
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleExcluir(kit.id)}>
+                            <FaTrash />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

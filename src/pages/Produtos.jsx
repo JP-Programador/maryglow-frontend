@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator } from 'react-icons/fa';
 import ProdutoForm from '../components/produtos/ProdutoForm';
 
 export default function Produtos() {
+  const navigate = useNavigate();
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -190,6 +192,9 @@ export default function Produtos() {
                         </td>
                         <td>{formatCurrency(produto.preco_venda)}</td>
                         <td className="text-end">
+                          <button className="btn btn-sm btn-outline-primary me-2" title="Precificação (TikTok e Shopee)" onClick={() => navigate(`/precificacao/produto/${produto.id}`)}>
+                            <FaCalculator />
+                          </button>
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => abrirModal(produto)}>
                             <FaEdit />
                           </button>
