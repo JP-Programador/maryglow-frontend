@@ -18,8 +18,12 @@ function Farol({ farol }) {
 const pct = (v) => (v === null || v === undefined ? '-' : `${Number(v).toFixed(2).replace('.', ',')}%`);
 const brl = (v) => (v === null || v === undefined ? '-' : formatCurrency(v));
 
-function CartaoPlataforma({ p, melhor }) {
+function CartaoPlataforma({ p, melhor, produtoId, onAplicar }) {
   const d = p.detalhe;
+  const aplicar = async () => {
+    if (!window.confirm(`Definir ${formatCurrency(p.preco_recomendado)} como PREÇO DE VENDA deste produto (usado no PDV e no catálogo)?`)) return;
+    await onAplicar(p.codigo);
+  };
   return (
     <div className="card shadow-sm border-0 h-100">
       <div className="card-header bg-white d-flex justify-content-between align-items-center">
@@ -51,6 +55,11 @@ function CartaoPlataforma({ p, melhor }) {
                 <tr><td>Margem líquida</td><td className="text-end fw-bold">{pct(d.margem)}</td></tr>
               </tbody>
             </table>
+            {produtoId && (
+              <button className="btn btn-sm btn-outline-primary mt-3" onClick={aplicar}>
+                Usar como preço de venda
+              </button>
+            )}
           </>
         )}
       </div>
@@ -132,14 +141,24 @@ function TabelaCombos({ combos, plataformas }) {
   );
 }
 
-function Afiliados({ plataformas }) {
+function CampoAfiliado({ p, onSalvar }) {
+  const [valor, setValor] = useState(String(p.afiliados?.percentual_cadastrado ?? 0));
+  return (
+    <div className="d-flex gap-1" style={{ minWidth: 150 }}>
+      <input type="number" min="0" max="99" step="0.5" className="form-control form-control-sm" value={valor} onChange={(e) => setValor(e.target.value)} />
+      <button className="btn btn-sm btn-primary" onClick={() => onSalvar(p.plataforma_id, valor)}>Salvar</button>
+    </div>
+  );
+}
+
+function Afiliados({ plataformas, onSalvar }) {
   return (
     <div className="card shadow-sm border-0 mb-4">
       <div className="card-header bg-white"><h5 className="m-0">Afiliados</h5></div>
       <div className="table-responsive">
         <table className="table table-sm align-middle mb-0 text-nowrap">
           <thead className="table-light">
-            <tr><th>Plataforma</th>{[0, 5, 10, 15, 20].map((n) => <th key={n}>{n === 0 ? 'Sem afiliado' : `${n}%`}</th>)}<th>Comissão máxima recomendada</th></tr>
+            <tr><th>Plataforma</th>{[0, 5, 10, 15, 20].map((n) => <th key={n}>{n === 0 ? 'Sem afiliado' : `${n}%`}</th>)}<th>Comissão máxima recomendada</th>{onSalvar && <th>Comissão cadastrada (%)</th>}</tr>
           </thead>
           <tbody>
             {plataformas.map((p) => (
@@ -149,6 +168,7 @@ function Afiliados({ plataformas }) {
                   <td key={t.percentual}>{pct(t.margem)} <Farol farol={t.farol} /></td>
                 ))}
                 <td className="fw-bold text-success">{pct(p.afiliados?.comissao_maxima_recomendada)}</td>
+                {onSalvar && <td><CampoAfiliado p={p} onSalvar={onSalvar} /></td>}
               </tr>
             ))}
           </tbody>
@@ -295,6 +315,29 @@ export default function FichaPrecificacao() {
       .catch((e) => setErro(mensagemErro(e)));
   }, [id, tipo]);
 
+  const carregar = () =>
+    api.get(`/precificacao/${tipo === 'kit' ? 'kits' : 'produtos'}/${id}`)
+      .then((r) => setFicha(r.data.precificacao))
+      .catch((e) => setErro(mensagemErro(e)));
+
+  const aplicarPreco = async (plataforma) => {
+    try {
+      await api.post(`/precificacao/produtos/${id}/aplicar-preco`, { plataforma });
+      await carregar();
+    } catch (e) {
+      alert(mensagemErro(e));
+    }
+  };
+
+  const salvarAfiliado = async (plataformaId, percentual) => {
+    try {
+      await api.put(`/precificacao/produtos/${id}/afiliado/${plataformaId}`, { percentual_comissao: Number(percentual || 0) });
+      await carregar();
+    } catch (e) {
+      alert(mensagemErro(e));
+    }
+  };
+
   const voltar = () => navigate(tipo === 'kit' ? '/kits' : '/produtos');
 
   if (erro) {
@@ -344,14 +387,14 @@ export default function FichaPrecificacao() {
       <div className="row g-3 mb-4">
         {ficha.plataformas.map((p) => (
           <div className="col-lg-6" key={p.codigo}>
-            <CartaoPlataforma p={p} melhor={ficha.melhor_plataforma === p.codigo} />
+            <CartaoPlataforma p={p} melhor={ficha.melhor_plataforma === p.codigo} produtoId={tipo === 'produto' ? id : null} onAplicar={aplicarPreco} />
           </div>
         ))}
       </div>
 
       <Comparativo plataformas={ficha.plataformas} melhor={ficha.melhor_plataforma} />
       {tipo === 'produto' && <TabelaCombos combos={ficha.combos} plataformas={ficha.plataformas} />}
-      <Afiliados plataformas={ficha.plataformas} />
+      <Afiliados plataformas={ficha.plataformas} onSalvar={tipo === 'produto' ? salvarAfiliado : null} />
       <Simulador ficha={ficha} tipo={tipo} id={id} />
       {tipo === 'produto' && <Historico produtoId={id} />}
     </div>
