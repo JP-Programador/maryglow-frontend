@@ -11,7 +11,8 @@ import {
   FiBarChart2,
   FiUsers,
   FiRepeat,
-  FiPrinter
+  FiPrinter,
+  FiPercent
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
@@ -41,7 +42,10 @@ const GRUPOS = [
   },
   {
     label: 'Ferramentas',
-    itens: [{ to: '/etiquetas', label: 'Central de Etiquetas', icon: FiPrinter }]
+    itens: [
+      { to: '/etiquetas', label: 'Central de Etiquetas', icon: FiPrinter },
+      { to: '/precificacao/configuracao', label: 'Config. de Precificação', icon: FiPercent }
+    ]
   },
   {
     label: 'Análises',

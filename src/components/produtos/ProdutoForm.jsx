@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const CAMPOS_INICIAIS = {
   nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
-  preco_custo: '', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: '',
+  preco_custo: '', custo_embalagem: '0', outros_custos: '0', preco_venda: '', marca_id: '', categoria_id: '', fornecedor_id: '',
   destaque: '', descricao: '', modo_uso: '', visivel_catalogo: false
 };
 
@@ -124,6 +124,15 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
                 <div className="col-md-4">
                   <label className="form-label">Preço de Custo *</label>
                   <input type="number" step="0.01" className="form-control" name="preco_custo" value={formData.preco_custo} onChange={handleChange} required />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Custo da embalagem</label>
+                  <input type="number" step="0.01" min="0" className="form-control" name="custo_embalagem" value={formData.custo_embalagem} onChange={handleChange} />
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Outros custos</label>
+                  <input type="number" step="0.01" min="0" className="form-control" name="outros_custos" value={formData.outros_custos} onChange={handleChange} />
+                  <small className="text-muted">O custo total é somado automaticamente na Precificação.</small>
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Preço de Venda *</label>

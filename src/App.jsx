@@ -23,6 +23,7 @@ import NovaVenda from './pages/NovaVenda';
 import Relatorios from './pages/Relatorios';
 import EstoqueVendedores from './pages/EstoqueVendedores';
 import CentralEtiquetas from './pages/CentralEtiquetas';
+import ConfigPrecificacao from './pages/ConfigPrecificacao';
 export default function App() {
   return (
     <AuthProvider>
@@ -52,6 +53,7 @@ export default function App() {
 
             {/* Ferramentas */}
             <Route path="/etiquetas" element={<CentralEtiquetas />} />
+            <Route path="/precificacao/configuracao" element={<ConfigPrecificacao />} />
 
             {/* Relatórios */}
             <Route path="/relatorios" element={<Relatorios />} />
