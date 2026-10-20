@@ -16,28 +16,25 @@ export function totalAPagar(vendas) {
     .reduce((soma, v) => soma + Number(v.valor_total), 0);
 }
 
-/* Texto pronto para colar/enviar no WhatsApp */
+/* Texto pronto para colar/enviar no WhatsApp (mesmo estilo da mensagem do catálogo) */
 export function montarTextoRecibo({ cliente, vendas }) {
   const pendente = vendas.some((v) => v.status_pagamento === 'pendente');
-  const linhas = ['*Mary Glow* 💖', pendente ? 'Recibo de pendência' : 'Recibo de compra'];
-  if (cliente) linhas.push(`Cliente: ${cliente}`);
-  linhas.push('');
+  const linhas = [`💖 *${pendente ? 'Recibo' : 'Comprovante'} • Mary Glow* 💖`, ''];
+  linhas.push(cliente ? `Oi, ${cliente}! 🥰` : 'Oi! 🥰', pendente ? 'Segue o que você pegou:' : 'Segue a sua compra:', '');
 
   vendas.forEach((v) => {
-    linhas.push(`🧾 Venda #${v.id} • ${formatDate(v.data_venda)}${v.status_pagamento === 'pago' ? ' • PAGA' : ''}`);
     v.itens.forEach((i) => {
-      linhas.push(`• ${i.quantidade}x ${nomeDoItem(i)} — ${formatCurrency(i.subtotal)}`);
+      linhas.push(`💄 *${nomeDoItem(i)}*`);
+      linhas.push(`   Qtd: ${i.quantidade} × ${formatCurrency(i.preco_unitario)} = *${formatCurrency(i.subtotal)}*`, '');
     });
-    if (vendas.length > 1) linhas.push(`Subtotal: ${formatCurrency(v.valor_total)}`);
-    linhas.push('');
   });
 
   if (pendente) {
-    linhas.push(`*Total a pagar: ${formatCurrency(totalAPagar(vendas))}*`, '');
-    linhas.push('💳 Pix', `Chave: ${PIX.chave}`, `Titular: ${PIX.titular}`, '');
-    linhas.push('Depois de pagar, me envie o comprovante, por favor 🥰');
+    linhas.push(`💰 *Total a pagar: ${formatCurrency(totalAPagar(vendas))}*`, '');
+    linhas.push('💳 *Pix*', `🔑 Chave: ${PIX.chave}`, `👤 Titular: ${PIX.titular}`, '');
+    linhas.push('Depois de pagar, me envie o comprovante, por favor 💗');
   } else {
-    linhas.push(`*Total: ${formatCurrency(vendas.reduce((s, v) => s + Number(v.valor_total), 0))}* (pago)`, '', 'Obrigada pela compra! 💗');
+    linhas.push(`💰 *Total pago: ${formatCurrency(vendas.reduce((s, v) => s + Number(v.valor_total), 0))}* ✅`, '', 'Obrigada pela compra! 💗');
   }
   return linhas.join('\n');
 }
