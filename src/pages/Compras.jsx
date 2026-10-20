@@ -98,7 +98,7 @@ export default function Compras() {
                     <th>Produtos</th>
                     <th>Qtd. Itens</th>
                     <th>Valor Total</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -115,7 +115,7 @@ export default function Compras() {
                         </td>
                         <td>{compra.total_itens || '-'}</td>
                         <td className="text-success fw-bold">{formatCurrency(compra.valor_total)}</td>
-                        <td className="text-end">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-secondary me-2" title="Ver Detalhes" aria-label={`Ver detalhes da compra ${compra.id}`} onClick={() => visualizarCompra(compra.id)}>
                             <FaEye />
                           </button>

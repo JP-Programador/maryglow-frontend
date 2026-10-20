@@ -119,7 +119,7 @@ export default function Kits() {
                           <li key={item.id}>{item.rotulo} — {item.opcoes.length} opção(ões)</li>
                         ))}
                       </ul>
-                      <div className="d-flex justify-content-between align-items-center">
+                      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <button
                           className={`btn btn-sm ${kit.visivel_catalogo ? 'btn-outline-success' : 'btn-outline-secondary'} d-flex align-items-center gap-1`}
                           onClick={() => alternarVisibilidade(kit)}

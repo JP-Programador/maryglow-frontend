@@ -98,7 +98,7 @@ export default function CadastroSimples({ titulo, labelItem, endpoint }) {
                   <tr>
                     <th>ID</th>
                     <th>Nome da {labelItem}</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -107,7 +107,7 @@ export default function CadastroSimples({ titulo, labelItem, endpoint }) {
                       <tr key={item.id}>
                         <td className="text-muted">#{item.id}</td>
                         <td className="fw-bold">{item.nome}</td>
-                        <td className="text-end">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => abrirModal(item)}>
                             <FaEdit />
                           </button>

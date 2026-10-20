@@ -126,7 +126,7 @@ export default function Usuarios() {
                     <th>Nome</th>
                     <th>E-mail</th>
                     <th>Acesso</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -150,7 +150,7 @@ export default function Usuarios() {
                             </span>
                           )}
                         </td>
-                        <td className="text-end text-nowrap">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-secondary me-2" title="Editar" aria-label={`Editar ${usuario.nome}`} onClick={() => abrirModal(usuario)}>
                             <FaEdit />
                           </button>

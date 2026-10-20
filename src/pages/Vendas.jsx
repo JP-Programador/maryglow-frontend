@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { formatCurrency, formatDate, STATUS_PAGAMENTO_LABEL } from '../utils/format';
-import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen, FaCheck, FaClock } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen, FaCheck, FaClock, FaFileInvoiceDollar } from 'react-icons/fa';
 import VendaDetalheModal from '../components/vendas/VendaDetalheModal';
+import ReciboModal from '../components/vendas/ReciboModal';
 
 import { confirmar } from '../components/common/Dialogs';
 export default function Vendas() {
@@ -18,6 +19,11 @@ export default function Vendas() {
   const [showModal, setShowModal] = useState(false);
   const [vendaDetalhe, setVendaDetalhe] = useState(null);
   const [carregandoDetalhe, setCarregandoDetalhe] = useState(false);
+
+  // Recibo para o cliente
+  const [showRecibo, setShowRecibo] = useState(false);
+  const [reciboVenda, setReciboVenda] = useState(null);
+  const [outrasPendentes, setOutrasPendentes] = useState([]);
 
   // Busca por produto no servidor, com pequena espera enquanto a pessoa digita
   useEffect(() => {
@@ -54,6 +60,30 @@ export default function Vendas() {
       console.error('Erro ao carregar detalhes da venda:', error);
     } finally {
       setCarregandoDetalhe(false);
+    }
+  };
+
+  const abrirRecibo = async (id) => {
+    setShowRecibo(true);
+    setReciboVenda(null);
+    setOutrasPendentes([]);
+    try {
+      const { data } = await api.get(`/vendas/${id}`);
+      const venda = data.venda;
+      setReciboVenda(venda);
+
+      // Outras vendas pendentes do mesmo cliente (busca à parte, sem depender do filtro da tela)
+      const nome = (venda.cliente_nome || '').trim().toLowerCase();
+      if (nome) {
+        const { data: pend } = await api.get('/vendas', { params: { status_pagamento: 'pendente' } });
+        setOutrasPendentes(
+          pend.vendas.filter((v) => v.id !== venda.id && (v.cliente_nome || '').trim().toLowerCase() === nome)
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao montar o recibo:', error);
+      setShowRecibo(false);
+      alert('Não foi possível carregar os dados do recibo.');
     }
   };
 
@@ -159,7 +189,7 @@ export default function Vendas() {
                     <th>Total Itens</th>
                     <th>Valor Total</th>
                     <th>Lucro</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -189,9 +219,12 @@ export default function Vendas() {
                           {/* O backend deve retornar lucro_total, mas caso não retorne, prevemos um fallback */}
                           {venda.lucro_total ? formatCurrency(venda.lucro_total) : '-'}
                         </td>
-                        <td className="text-end">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-secondary me-2" title="Ver Detalhes" onClick={() => visualizarVenda(venda.id)}>
                             <FaEye />
+                          </button>
+                          <button className="btn btn-sm btn-outline-primary me-2" title="Recibo para o cliente" aria-label={`Recibo da venda ${venda.id}`} onClick={() => abrirRecibo(venda.id)}>
+                            <FaFileInvoiceDollar />
                           </button>
                           <button
                             className={`btn btn-sm me-2 ${venda.status_pagamento === 'pendente' ? 'btn-outline-success' : 'btn-outline-warning'}`}
@@ -221,6 +254,13 @@ export default function Vendas() {
           )}
         </div>
       </div>
+
+      <ReciboModal
+        show={showRecibo}
+        onClose={() => setShowRecibo(false)}
+        venda={reciboVenda}
+        outrasPendentes={outrasPendentes}
+      />
 
       <VendaDetalheModal
         show={showModal}

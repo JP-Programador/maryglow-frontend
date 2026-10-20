@@ -98,7 +98,7 @@ export default function Fornecedores() {
                     <th>Empresa</th>
                     <th>CNPJ/CPF</th>
                     <th>Contato</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,7 +113,7 @@ export default function Fornecedores() {
                           <div>{fornecedor.telefone || '-'}</div>
                           <small className="text-muted">{fornecedor.email || ''}</small>
                         </td>
-                        <td className="text-end">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => abrirModal(fornecedor)}>
                             <FaEdit />
                           </button>

@@ -211,7 +211,7 @@ export default function Produtos() {
                     <th>Nome</th>
                     <th>Estoque</th>
                     <th>Preço Venda</th>
-                    <th className="text-end">Ações</th>
+                    <th className="text-end mg-acoes">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -229,7 +229,7 @@ export default function Produtos() {
                           </span>
                         </td>
                         <td>{formatCurrency(produto.preco_venda)}</td>
-                        <td className="text-end">
+                        <td className="text-end mg-acoes">
                           <button className="btn btn-sm btn-outline-primary me-2" title="Precificação (TikTok e Shopee)" onClick={() => navigate(`/precificacao/produto/${produto.id}`)}>
                             <FaCalculator />
                           </button>
