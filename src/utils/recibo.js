@@ -49,9 +49,17 @@ export function telefoneWhatsApp(valor) {
   return digitos.length <= 11 ? `55${digitos}` : digitos;
 }
 
+// No computador, o WhatsApp Desktop troca os emojis por "�" quando o texto vem de um link wa.me.
+// Por isso, fora do celular abrimos o WhatsApp Web, que preserva os emojis (igual ao catálogo).
+function ehCelular() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 export function linkWhatsApp(texto, telefone) {
   const numero = telefoneWhatsApp(telefone);
-  return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+  const params = `text=${encodeURIComponent(texto)}`;
+  if (ehCelular()) return `https://wa.me/${numero}?${params}`;
+  return `https://web.whatsapp.com/send?${numero ? `phone=${numero}&` : ''}${params}`;
 }
 
 function esc(valor) {
