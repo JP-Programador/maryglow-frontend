@@ -56,6 +56,14 @@ export default function Produtos() {
   };
 
   const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = [], ordemImagens = [], outroTom = false) => {
+    // SKU duplicado não salva (o backend também confere; aqui o aviso é imediato e não perde o formulário)
+    const sku = String(dadosProduto.sku || '').trim().toLowerCase();
+    const duplicado = sku && produtos.some((p) => (p.sku || '').trim().toLowerCase() === sku && p.id !== produtoEditado?.id);
+    if (duplicado) {
+      alert('Já existe um produto com este SKU. Use outro SKU para este tom.');
+      return;
+    }
+
     try {
       const form = new FormData();
       Object.entries(dadosProduto).forEach(([chave, valor]) => {
@@ -98,7 +106,7 @@ export default function Produtos() {
     }
   };
 
-  // Reaproveita tudo do produto; limpa só o que é específico de cada tom (tom, SKU e estoque inicial).
+  // Reaproveita tudo do produto, inclusive o SKU; limpa só o tom e o estoque inicial.
   // As fotos também não são copiadas: cada tom tem as suas.
   const modeloSemTom = (p) => ({
     nome: p.nome, cor: p.cor || '', marca_id: p.marca_id, categoria_id: p.categoria_id, fornecedor_id: p.fornecedor_id,
@@ -106,7 +114,7 @@ export default function Produtos() {
     preco_venda: p.preco_venda, estoque_minimo: p.estoque_minimo,
     destaque: p.destaque || '', descricao: p.descricao || '', modo_uso: p.modo_uso || '',
     visivel_catalogo: !!p.visivel_catalogo,
-    tom: '', sku: '', estoque_atual: 0
+    sku: p.sku || '', tom: '', estoque_atual: 0
   });
 
   const abrirModal = (produto = null) => {
@@ -119,7 +127,7 @@ export default function Produtos() {
   const duplicar = (produto) => {
     setProdutoEditado(null);
     setModelo(modeloSemTom(produto));
-    setAviso(`Novo tom de "${produto.nome}": mude o tom, o SKU, o estoque e as fotos.`);
+    setAviso(`Novo tom de "${produto.nome}": mude o tom e o estoque, anexe as fotos e use um SKU que ainda não exista.`);
     setShowModal(true);
   };
 
