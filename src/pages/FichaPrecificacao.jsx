@@ -5,6 +5,7 @@ import api, { mensagemErro } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { formatCurrency, formatarDataHora } from '../utils/format';
 
+import { confirmar } from '../components/common/Dialogs';
 /* Ficha de precificação (produto ou kit). Todo o cálculo vem pronto do backend;
    esta tela só exibe os resultados e envia os dados do simulador. */
 
@@ -21,7 +22,7 @@ const brl = (v) => (v === null || v === undefined ? '-' : formatCurrency(v));
 function CartaoPlataforma({ p, melhor, produtoId, onAplicar }) {
   const d = p.detalhe;
   const aplicar = async () => {
-    if (!window.confirm(`Definir ${formatCurrency(p.preco_recomendado)} como PREÇO DE VENDA deste produto (usado no PDV e no catálogo)?`)) return;
+    if (!await confirmar(`Definir ${formatCurrency(p.preco_recomendado)} como PREÇO DE VENDA deste produto (usado no PDV e no catálogo)?`)) return;
     await onAplicar(p.codigo);
   };
   return (

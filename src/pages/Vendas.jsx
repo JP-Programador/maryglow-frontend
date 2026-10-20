@@ -5,6 +5,7 @@ import { formatCurrency, formatDate, STATUS_PAGAMENTO_LABEL } from '../utils/for
 import { FaPlus, FaSearch, FaEye, FaShoppingBag, FaTrash, FaBoxOpen, FaCheck, FaClock } from 'react-icons/fa';
 import VendaDetalheModal from '../components/vendas/VendaDetalheModal';
 
+import { confirmar } from '../components/common/Dialogs';
 export default function Vendas() {
   const [vendas, setVendas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,7 +62,7 @@ export default function Vendas() {
     const pergunta = novo === 'pago'
       ? `Marcar a venda #${venda.id} como PAGA?`
       : `Voltar a venda #${venda.id} para PENDENTE?`;
-    if (!window.confirm(pergunta)) return;
+    if (!await confirmar(pergunta)) return;
     try {
       await api.patch(`/vendas/${venda.id}/pagamento`, { status_pagamento: novo });
       carregarVendas();
@@ -72,7 +73,7 @@ export default function Vendas() {
   };
 
   const excluirVenda = async (venda) => {
-    if (window.confirm(`Cancelar a venda #${venda.id}? O estoque dos itens será devolvido.`)) {
+    if (await confirmar(`Cancelar a venda #${venda.id}? O estoque dos itens será devolvido.`)) {
       try {
         await api.delete(`/vendas/${venda.id}`);
         carregarVendas();

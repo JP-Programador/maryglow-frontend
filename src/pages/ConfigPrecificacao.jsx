@@ -4,6 +4,7 @@ import api, { mensagemErro } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
+import { confirmar } from '../components/common/Dialogs';
 const TIPOS_BENEFICIO = [
   { value: 'COMISSAO_PERCENTUAL', label: 'Comissão (%) substitui a normal' },
   { value: 'TAXA_FIXA', label: 'Taxa fixa (R$) substitui a normal' },
@@ -53,7 +54,7 @@ function FaixasPlataforma({ plataforma, recarregar }) {
 
   const remover = async (faixa, i) => {
     if (!faixa.id) return setFaixas(faixas.filter((_, idx) => idx !== i));
-    if (!window.confirm('Excluir esta faixa de taxa?')) return;
+    if (!await confirmar('Excluir esta faixa de taxa?')) return;
     try {
       await api.delete(`/precificacao/configuracao/taxas/${faixa.id}`);
       await recarregar();
@@ -164,7 +165,7 @@ function BeneficiosPlataforma({ plataforma, recarregar }) {
 
   const remover = async (b, i) => {
     if (!b.id) return setLista(lista.filter((_, idx) => idx !== i));
-    if (!window.confirm('Excluir este benefício?')) return;
+    if (!await confirmar('Excluir este benefício?')) return;
     try {
       await api.delete(`/precificacao/configuracao/beneficios/${b.id}`);
       await recarregar();

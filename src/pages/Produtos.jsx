@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator, FaCopy } from 'react-icons/fa';
 import ProdutoForm from '../components/produtos/ProdutoForm';
 
+import { confirmar } from '../components/common/Dialogs';
 export default function Produtos() {
   const navigate = useNavigate();
   const [produtos, setProdutos] = useState([]);
@@ -95,7 +96,7 @@ export default function Produtos() {
   };
 
   const handleExcluir = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
+    if (await confirmar('Tem certeza que deseja excluir este produto?')) {
       try {
         await api.delete(`/produtos/${id}`);
         carregarDados();

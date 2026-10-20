@@ -3,6 +3,7 @@ import api from '../services/api';
 import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
 import FornecedorForm from '../components/fornecedores/FornecedorForm';
 
+import { confirmar } from '../components/common/Dialogs';
 export default function Fornecedores() {
   const [fornecedores, setFornecedores] = useState([]);
   const [busca, setBusca] = useState('');
@@ -44,7 +45,7 @@ export default function Fornecedores() {
   };
 
   const handleExcluir = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este fornecedor? Ele pode estar vinculado a produtos ou compras.')) {
+    if (await confirmar('Tem certeza que deseja excluir este fornecedor? Ele pode estar vinculado a produtos ou compras.')) {
       try {
         await api.delete(`/fornecedores/${id}`);
         carregarFornecedores();

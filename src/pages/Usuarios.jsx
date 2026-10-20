@@ -5,6 +5,7 @@ import UsuarioForm from '../components/usuarios/UsuarioForm';
 import ResetSenhaModal from '../components/usuarios/ResetSenhaModal';
 import { useAuth } from '../context/AuthContext';
 
+import { confirmar } from '../components/common/Dialogs';
 export default function Usuarios() {
   const { usuario: logado } = useAuth();
   const [usuarioSenha, setUsuarioSenha] = useState(null);
@@ -61,7 +62,7 @@ export default function Usuarios() {
 
   const handleExcluir = async (usuario) => {
     const tipo = usuario.nivel === 'admin' ? ' (ADMINISTRADOR)' : '';
-    if (window.confirm(`Excluir o login de ${usuario.nome}${tipo}? O acesso é removido na hora e isso não pode ser desfeito.`)) {
+    if (await confirmar(`Excluir o login de ${usuario.nome}${tipo}? O acesso é removido na hora e isso não pode ser desfeito.`)) {
       try {
         await api.delete(`/usuarios/${usuario.id}`);
         carregarUsuarios();

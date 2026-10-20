@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { FaPlus, FaSearch, FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import CompraDetalheModal from '../components/compras/CompraDetalheModal';
 
+import { confirmar } from '../components/common/Dialogs';
 export default function Compras() {
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export default function Compras() {
   };
 
   const cancelarCompra = async (compra) => {
-    if (!window.confirm(`Cancelar a compra #${compra.id}? O estoque dos itens comprados será retirado.`)) return;
+    if (!await confirmar(`Cancelar a compra #${compra.id}? O estoque dos itens comprados será retirado.`)) return;
     try {
       await api.delete(`/compras/${compra.id}`);
       carregarCompras();

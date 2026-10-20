@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
 
+import { confirmar } from './Dialogs';
 export default function CadastroSimples({ titulo, labelItem, endpoint }) {
   const [itens, setItens] = useState([]);
   const [busca, setBusca] = useState('');
@@ -45,7 +46,7 @@ export default function CadastroSimples({ titulo, labelItem, endpoint }) {
   };
 
   const handleExcluir = async (id) => {
-    if (window.confirm(`Tem certeza que deseja excluir esta ${labelItem}?`)) {
+    if (await confirmar(`Tem certeza que deseja excluir esta ${labelItem}?`)) {
       try {
         await api.delete(`${endpoint}/${id}`);
         carregarDados();

@@ -1,0 +1,118 @@
+/* Caixas de diálogo (avisos e confirmações) */
+.mg-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(42, 34, 48, 0.45);
+  backdrop-filter: blur(3px);
+  animation: mg-dialog-fade 0.16s ease-out;
+}
+
+.mg-dialog {
+  --mg-dialog-cor: var(--mg-primary);
+  --mg-dialog-cor-suave: var(--mg-primary-soft);
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  padding: 28px 24px 22px;
+  text-align: center;
+  background: var(--mg-surface);
+  border: 1px solid var(--mg-border);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(42, 34, 48, 0.28);
+  animation: mg-dialog-pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.mg-dialog.is-sucesso { --mg-dialog-cor: var(--mg-success); --mg-dialog-cor-suave: var(--mg-success-soft); }
+.mg-dialog.is-atencao { --mg-dialog-cor: var(--mg-warning); --mg-dialog-cor-suave: var(--mg-warning-soft); }
+.mg-dialog.is-erro { --mg-dialog-cor: var(--mg-danger); --mg-dialog-cor-suave: var(--mg-danger-soft); }
+.mg-dialog.is-pergunta { --mg-dialog-cor: var(--mg-primary); --mg-dialog-cor-suave: var(--mg-primary-soft); }
+
+.mg-dialog-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  color: var(--mg-dialog-cor);
+  background: var(--mg-dialog-cor-suave);
+  border-radius: 50%;
+}
+
+.mg-dialog-titulo {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  color: var(--mg-ink);
+}
+
+.mg-dialog-texto {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--mg-muted);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.mg-dialog-acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.mg-dialog-btn {
+  flex: 1;
+  min-width: 110px;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 0.15s, background 0.15s;
+}
+
+.mg-dialog-btn-pri {
+  color: #fff;
+  background: var(--mg-dialog-cor);
+}
+.mg-dialog-btn-pri:hover { filter: brightness(0.92); }
+
+.mg-dialog-btn-sec {
+  color: var(--mg-ink);
+  background: transparent;
+  border-color: var(--mg-border);
+}
+.mg-dialog-btn-sec:hover { background: var(--mg-bg); }
+
+.mg-dialog-btn:focus-visible {
+  outline: 3px solid var(--mg-dialog-cor-suave);
+  outline-offset: 2px;
+}
+
+/* Barra que esvazia enquanto o aviso de sucesso fecha sozinho */
+.mg-dialog-progresso {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 4px;
+  width: 100%;
+  background: var(--mg-dialog-cor);
+  transform-origin: left;
+  animation-name: mg-dialog-barra;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes mg-dialog-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mg-dialog-pop { from { opacity: 0; transform: scale(0.92) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes mg-dialog-barra { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mg-dialog, .mg-dialog-backdrop { animation: none; }
+}

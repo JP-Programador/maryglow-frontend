@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaTrash, FaEye, FaEyeSlash, FaCalculator } from 'react-icons/fa';
 import KitForm from '../components/kits/KitForm';
 
+import { confirmar } from '../components/common/Dialogs';
 const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.onrender.com/api').replace(/\/api$/, '');
 
 export default function Kits() {
@@ -71,7 +72,7 @@ export default function Kits() {
   };
 
   const handleExcluir = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este kit?')) {
+    if (await confirmar('Tem certeza que deseja excluir este kit?')) {
       try {
         await api.delete(`/kits/${id}`);
         carregarDados();
