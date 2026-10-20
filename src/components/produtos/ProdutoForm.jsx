@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const CAMPOS_INICIAIS = {
   nome: '', sku: '', tom: '', cor: '', estoque_atual: 0, estoque_minimo: 0,
@@ -9,7 +9,8 @@ const CAMPOS_INICIAIS = {
 const MAX_FOTOS = 10;
 const API_ORIGIN = (import.meta.env.VITE_API_URL || 'https://maryglow-backend.onrender.com/api').replace(/\/api$/, '');
 
-export default function ProdutoForm({ show, onClose, onSave, produtoEditado, listas }) {
+export default function ProdutoForm({ show, onClose, onSave, produtoEditado, listas, modelo = null, aviso = '' }) {
+  const tomRef = useRef(null);
   const [formData, setFormData] = useState(CAMPOS_INICIAIS);
   const [novasFotos, setNovasFotos] = useState([]);
   const [galeria, setGaleria] = useState([]); // fotos existentes, já na ordem atual (exclui as removidas)
@@ -26,11 +27,13 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
         visivel_catalogo: !!produtoEditado.visivel_catalogo
       });
     } else {
-      setFormData(CAMPOS_INICIAIS);
+      // Produto novo: em branco, ou pré-preenchido quando vem de "duplicar" / "salvar e outro tom"
+      setFormData({ ...CAMPOS_INICIAIS, ...(modelo || {}) });
     }
     setNovasFotos([]);
     setGaleria(produtoEditado?.imagens || []);
-  }, [produtoEditado, show]);
+    if (modelo && !produtoEditado) setTimeout(() => tomRef.current?.focus(), 50);
+  }, [produtoEditado, show, modelo]);
 
   const fotosAtuais = galeria;
   const vagas = MAX_FOTOS - fotosAtuais.length - novasFotos.length;
@@ -59,12 +62,12 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
     e.target.value = '';
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e, outroTom = false) => {
     e.preventDefault();
     const fotosRemovidas = (produtoEditado?.imagens || [])
       .filter((f) => !galeria.some((g) => g.id === f.id))
       .map((f) => f.id);
-    onSave(formData, novasFotos, fotosRemovidas, galeria.map((f) => f.id));
+    onSave(formData, novasFotos, fotosRemovidas, galeria.map((f) => f.id), outroTom);
   };
 
   if (!show) return null;
@@ -80,6 +83,7 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
             </div>
             
             <div className="modal-body">
+              {aviso && !produtoEditado && <div className="alert alert-success py-2">{aviso}</div>}
               <div className="row g-3">
                 <div className="col-md-8">
                   <label className="form-label">Nome do Produto *</label>
@@ -114,7 +118,7 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
 
                 <div className="col-md-6">
                   <label className="form-label">Tom</label>
-                  <input type="text" className="form-control" name="tom" value={formData.tom} onChange={handleChange} />
+                  <input ref={tomRef} type="text" className="form-control" name="tom" value={formData.tom} onChange={handleChange} />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Cor</label>
@@ -242,6 +246,19 @@ export default function ProdutoForm({ show, onClose, onSave, produtoEditado, lis
 
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={onClose}>Cancelar</button>
+              {!produtoEditado && (
+                <button
+                  type="button"
+                  className="btn btn-outline-primary"
+                  onClick={(e) => {
+                    // Valida os campos obrigatórios antes de salvar e seguir para o próximo tom
+                    const form = e.currentTarget.closest('form');
+                    if (form.reportValidity()) handleSubmit(e, true);
+                  }}
+                >
+                  Salvar e cadastrar outro tom
+                </button>
+              )}
               <button type="submit" className="btn btn-primary">Salvar Produto</button>
             </div>
           </form>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator, FaCopy } from 'react-icons/fa';
 import ProdutoForm from '../components/produtos/ProdutoForm';
 
 export default function Produtos() {
@@ -23,6 +23,9 @@ export default function Produtos() {
   // Controle do Modal
   const [showModal, setShowModal] = useState(false);
   const [produtoEditado, setProdutoEditado] = useState(null);
+  // Dados que pré-preenchem um produto NOVO (duplicar / cadastrar outro tom) e aviso mostrado no formulário
+  const [modelo, setModelo] = useState(null);
+  const [aviso, setAviso] = useState('');
 
   useEffect(() => {
     carregarDados();
@@ -52,7 +55,7 @@ export default function Produtos() {
     }
   };
 
-  const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = [], ordemImagens = []) => {
+  const handleSalvar = async (dadosProduto, novasFotos = [], fotosRemovidas = [], ordemImagens = [], outroTom = false) => {
     try {
       const form = new FormData();
       Object.entries(dadosProduto).forEach(([chave, valor]) => {
@@ -69,8 +72,14 @@ export default function Produtos() {
       } else {
         await api.post('/produtos', form, config);
       }
-      setShowModal(false);
       carregarDados();
+      if (outroTom) {
+        // Mantém o formulário aberto com os mesmos dados; só o que é de cada tom é limpo
+        setAviso(`Tom "${dadosProduto.tom || 'sem tom'}" salvo! Preencha o próximo tom.`);
+        setModelo(modeloSemTom(dadosProduto));
+      } else {
+        setShowModal(false);
+      }
     } catch (error) {
       console.error('Erro ao salvar:', error);
       alert(error.response?.data?.mensagem || 'Erro ao salvar produto. Verifique os dados e tente novamente.');
@@ -89,8 +98,28 @@ export default function Produtos() {
     }
   };
 
+  // Reaproveita tudo do produto; limpa só o que é específico de cada tom (tom, SKU e estoque inicial).
+  // As fotos também não são copiadas: cada tom tem as suas.
+  const modeloSemTom = (p) => ({
+    nome: p.nome, cor: p.cor || '', marca_id: p.marca_id, categoria_id: p.categoria_id, fornecedor_id: p.fornecedor_id,
+    preco_custo: p.preco_custo, custo_embalagem: p.custo_embalagem, outros_custos: p.outros_custos,
+    preco_venda: p.preco_venda, estoque_minimo: p.estoque_minimo,
+    destaque: p.destaque || '', descricao: p.descricao || '', modo_uso: p.modo_uso || '',
+    visivel_catalogo: !!p.visivel_catalogo,
+    tom: '', sku: '', estoque_atual: 0
+  });
+
   const abrirModal = (produto = null) => {
     setProdutoEditado(produto);
+    setModelo(null);
+    setAviso('');
+    setShowModal(true);
+  };
+
+  const duplicar = (produto) => {
+    setProdutoEditado(null);
+    setModelo(modeloSemTom(produto));
+    setAviso(`Novo tom de "${produto.nome}": mude o tom, o SKU, o estoque e as fotos.`);
     setShowModal(true);
   };
 
@@ -195,6 +224,9 @@ export default function Produtos() {
                           <button className="btn btn-sm btn-outline-primary me-2" title="Precificação (TikTok e Shopee)" onClick={() => navigate(`/precificacao/produto/${produto.id}`)}>
                             <FaCalculator />
                           </button>
+                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => duplicar(produto)} title="Cadastrar outro tom deste produto">
+                            <FaCopy />
+                          </button>
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => abrirModal(produto)}>
                             <FaEdit />
                           </button>
@@ -224,6 +256,8 @@ export default function Produtos() {
         onClose={() => setShowModal(false)} 
         onSave={handleSalvar} 
         produtoEditado={produtoEditado}
+        modelo={modelo}
+        aviso={aviso}
         listas={listas}
       />
     </div>
