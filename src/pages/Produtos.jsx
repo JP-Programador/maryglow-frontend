@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { formatCurrency } from '../utils/format';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator, FaCopy } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaFilter, FaCalculator, FaCopy, FaWhatsapp } from 'react-icons/fa';
 import ProdutoForm from '../components/produtos/ProdutoForm';
+import CatalogoWhatsAppModal from '../components/produtos/CatalogoWhatsAppModal';
 
 import { confirmar } from '../components/common/Dialogs';
 export default function Produtos() {
@@ -23,6 +24,7 @@ export default function Produtos() {
   
   // Controle do Modal
   const [showModal, setShowModal] = useState(false);
+  const [showCatalogoZap, setShowCatalogoZap] = useState(false);
   const [produtoEditado, setProdutoEditado] = useState(null);
   // Dados que pré-preenchem um produto NOVO (duplicar / cadastrar outro tom) e aviso mostrado no formulário
   const [modelo, setModelo] = useState(null);
@@ -151,9 +153,14 @@ export default function Produtos() {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestão de Produtos</h2>
-        <button className="btn btn-primary d-flex align-items-center gap-2" onClick={() => abrirModal()}>
-          <FaPlus /> Novo Produto
-        </button>
+        <div className="d-flex flex-wrap gap-2">
+          <button className="btn btn-outline-success d-flex align-items-center gap-2" onClick={() => setShowCatalogoZap(true)}>
+            <FaWhatsapp /> Catálogo p/ WhatsApp
+          </button>
+          <button className="btn btn-primary d-flex align-items-center gap-2" onClick={() => abrirModal()}>
+            <FaPlus /> Novo Produto
+          </button>
+        </div>
       </div>
 
       <div className="card shadow-sm border-0 mb-4">
@@ -259,6 +266,8 @@ export default function Produtos() {
           )}
         </div>
       </div>
+
+      <CatalogoWhatsAppModal show={showCatalogoZap} onClose={() => setShowCatalogoZap(false)} produtos={produtos} />
 
       <ProdutoForm 
         show={showModal} 
